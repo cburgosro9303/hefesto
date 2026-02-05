@@ -1,0 +1,24 @@
+subprojects {
+    apply plugin: 'java'
+    group = 'org.iumotionlabs'
+    version = '1.0.0-SNAPSHOT'
+
+    java {
+        toolchain { languageVersion = JavaLanguageVersion.of(25) }
+    }
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+        options.compilerArgs.addAll(['-Xlint:all', '-Xlint:-processing'])
+    }
+    tasks.withType(Javadoc).configureEach {
+        options.encoding = 'UTF-8'
+        options.addStringOption('-release', '25')
+    }
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events 'passed', 'skipped', 'failed'
+            showStandardStreams = true
+        }
+    }
+}

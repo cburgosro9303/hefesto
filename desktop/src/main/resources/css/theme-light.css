@@ -1,0 +1,58 @@
+/* HEFESTO Desktop - Light Theme */
+
+.root {
+    -fx-base: #f5f5f5;
+    -fx-background: #ffffff;
+    -fx-control-inner-background: #ffffff;
+    -fx-accent: #2980b9;
+    -fx-text-base-color: #2c3e50;
+    -fx-focus-color: #3498db;
+    -fx-faint-focus-color: rgba(52, 152, 219, 0.2);
+}
+
+.sidebar {
+    -fx-background-color: #ecf0f1;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-color: #bdc3c7;
+}
+
+.sidebar-title {
+    -fx-text-fill: #2c3e50;
+}
+
+.sidebar-nav-button {
+    -fx-text-fill: #2c3e50;
+}
+
+.sidebar-nav-button:hover {
+    -fx-background-color: #dfe6e9;
+}
+
+.sidebar-nav-button.selected {
+    -fx-background-color: #2980b9;
+    -fx-text-fill: white;
+}
+
+.status-bar {
+    -fx-background-color: #ecf0f1;
+    -fx-text-fill: #7f8c8d;
+}
+
+.breadcrumb-bar {
+    -fx-background-color: #fafafa;
+}
+
+.command-palette {
+    -fx-background-color: white;
+    -fx-border-color: #bdc3c7;
+}
+
+.kpi-card {
+    -fx-background-color: white;
+    -fx-border-color: #ecf0f1;
+}
+
+.widget-container {
+    -fx-background-color: white;
+    -fx-border-color: #ecf0f1;
+}

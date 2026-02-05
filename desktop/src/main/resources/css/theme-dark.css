@@ -1,0 +1,69 @@
+/* HEFESTO Desktop - Dark Theme */
+
+.root {
+    -fx-base: #1e1e2e;
+    -fx-background: #181825;
+    -fx-control-inner-background: #313244;
+    -fx-accent: #89b4fa;
+    -fx-text-base-color: #cdd6f4;
+    -fx-focus-color: #89b4fa;
+    -fx-faint-focus-color: rgba(137, 180, 250, 0.2);
+}
+
+.sidebar {
+    -fx-background-color: #1e1e2e;
+    -fx-border-width: 0 1 0 0;
+    -fx-border-color: #313244;
+}
+
+.sidebar-title {
+    -fx-text-fill: #cdd6f4;
+}
+
+.sidebar-nav-button {
+    -fx-text-fill: #cdd6f4;
+}
+
+.sidebar-nav-button:hover {
+    -fx-background-color: #313244;
+}
+
+.sidebar-nav-button.selected {
+    -fx-background-color: #89b4fa;
+    -fx-text-fill: #1e1e2e;
+}
+
+.status-bar {
+    -fx-background-color: #1e1e2e;
+    -fx-text-fill: #6c7086;
+    -fx-border-color: #313244;
+}
+
+.breadcrumb-bar {
+    -fx-background-color: #181825;
+}
+
+.command-palette {
+    -fx-background-color: #1e1e2e;
+    -fx-border-color: #45475a;
+}
+
+.kpi-card {
+    -fx-background-color: #1e1e2e;
+    -fx-border-color: #313244;
+}
+
+.kpi-card-value {
+    -fx-text-fill: #cdd6f4;
+}
+
+.widget-container {
+    -fx-background-color: #1e1e2e;
+    -fx-border-color: #313244;
+}
+
+.status-badge-critical { -fx-background-color: #f38ba8; -fx-text-fill: #1e1e2e; }
+.status-badge-high { -fx-background-color: #fab387; -fx-text-fill: #1e1e2e; }
+.status-badge-warning { -fx-background-color: #f9e2af; -fx-text-fill: #1e1e2e; }
+.status-badge-info { -fx-background-color: #89b4fa; -fx-text-fill: #1e1e2e; }
+.status-badge-success { -fx-background-color: #a6e3a1; -fx-text-fill: #1e1e2e; }

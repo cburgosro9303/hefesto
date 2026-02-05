@@ -1,0 +1,41 @@
+# Hefesto Configuration File
+# =========================
+# This file contains compile-time configuration values for Hefesto.
+# Modify these values before building to customize behavior.
+
+# Display settings
+display:
+  # Maximum text width before truncation (characters)
+  # Set to -1 to disable truncation
+  maxTextWidth: 256
+
+  # Maximum width for process names in tables
+  maxProcessNameWidth: 256
+
+  # Maximum width for command lines in tables
+  maxCommandWidth: 256
+
+  # Maximum width for service names in tables
+  maxServiceWidth: 256
+
+# PortInfo module settings
+portinfo:
+  # Health check timeout in milliseconds
+  healthCheckTimeoutMs: 5000
+
+  # SSL certificate check timeout in milliseconds
+  sslTimeoutMs: 10000
+
+  # Default port scan range limit
+  maxPortRange: 1000
+
+# ProcWatch module settings
+procwatch:
+  # Default sampling interval in milliseconds
+  defaultIntervalMs: 1000
+
+  # Maximum processes to show in top mode
+  defaultTopLimit: 10
+
+  # Alert history duration in seconds (for windowed alerts)
+  alertHistorySeconds: 600
