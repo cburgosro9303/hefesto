@@ -1,0 +1,333 @@
+import { Theme } from "theme.slint";
+import { DashboardView } from "views/dashboard.slint";
+import { NetworkExplorerView, PortEntry } from "views/network_explorer.slint";
+import { ProcessExplorerView, ProcessEntry } from "views/process_explorer.slint";
+import { ProcessMonitorView } from "views/process_monitor.slint";
+import { ToolsView } from "views/tools.slint";
+import { PreferencesView } from "views/preferences.slint";
+
+export { PortEntry, ProcessEntry }
+
+export component ContentArea inherits Rectangle {
+    in property <int> active-view: 0;
+
+    // ---- Dashboard properties ----
+    in property <string> dash-title:            "Dashboard";
+    in property <string> dash-total-ports:      "--";
+    in property <string> dash-total-processes:  "--";
+    in property <string> dash-system-cpu:       "--";
+    in property <string> dash-system-memory:    "--";
+    in property <string> dash-exposed-ports:    "--";
+    in property <string> dash-tcp-count:        "--";
+    in property <string> dash-udp-count:        "--";
+    in property <string> dash-label-total-ports:    "Total Listening";
+    in property <string> dash-label-total-procs:    "Total Processes";
+    in property <string> dash-label-sys-cpu:        "System CPU";
+    in property <string> dash-label-sys-mem:        "System Memory";
+    in property <string> dash-label-exposed:        "Exposed Ports";
+    in property <string> dash-label-tcp:            "TCP Ports";
+    in property <string> dash-label-udp:            "UDP Ports";
+    callback dash-refresh-requested();
+
+    // ---- Network Explorer properties ----
+    in property <string> net-label-total-listening: "Total Listening";
+    in property <string> net-label-tcp-count:       "TCP Ports";
+    in property <string> net-label-udp-count:       "UDP Ports";
+    in property <string> net-label-port:            "Port";
+    in property <string> net-label-protocol:        "Protocol";
+    in property <string> net-label-address:         "Address";
+    in property <string> net-label-state:           "State";
+    in property <string> net-label-process:         "Process";
+    in property <string> net-label-pid:             "PID";
+    in property <string> net-label-security:        "Security";
+    in property <string> net-label-refresh:         "Refresh";
+    in property <string> net-label-export:          "Export CSV";
+    in property <string> net-total-listening:       "0";
+    in property <string> net-tcp-count:             "0";
+    in property <string> net-udp-count:             "0";
+    in property <[PortEntry]> net-ports:            [];
+    in-out property <int> net-selected-index:       -1;
+    callback net-refresh-requested();
+    callback net-search-changed(string);
+    callback net-protocol-filter-changed(string);
+    callback net-row-selected(int);
+    callback net-export-requested();
+
+    // ---- Process Explorer properties ----
+    in property <string> proc-label-total:       "Total Processes";
+    in property <string> proc-label-sys-cpu:     "System CPU";
+    in property <string> proc-label-sys-mem:     "System Memory";
+    in property <string> proc-label-pid:         "PID";
+    in property <string> proc-label-process:     "Process";
+    in property <string> proc-label-state:       "State";
+    in property <string> proc-label-cpu:         "CPU %";
+    in property <string> proc-label-memory:      "Memory %";
+    in property <string> proc-label-rss:         "RSS";
+    in property <string> proc-label-threads:     "Threads";
+    in property <string> proc-label-user:        "User";
+    in property <string> proc-label-refresh:     "Refresh";
+    in property <string> proc-label-export:      "Export CSV";
+    in property <string> proc-label-sort-cpu:    "Sort by CPU";
+    in property <string> proc-label-sort-mem:    "Sort by Memory";
+    in property <string> proc-label-auto:        "Auto Refresh";
+    in property <string> proc-total-processes:   "0";
+    in property <string> proc-system-cpu:        "0.0%";
+    in property <string> proc-system-memory:     "0.0%";
+    in property <[ProcessEntry]> proc-processes: [];
+    in-out property <int> proc-selected-index:   -1;
+    in-out property <bool> proc-auto-refresh:    false;
+    callback proc-refresh-requested();
+    callback proc-search-changed(string);
+    callback proc-sort-changed(string);
+    callback proc-row-selected(int);
+    callback proc-row-double-clicked(int);
+    callback proc-export-requested();
+    callback proc-auto-refresh-toggled(bool);
+
+    // ---- Process Monitor properties ----
+    in property <string> mon-label-start:       "Start";
+    in property <string> mon-label-stop:        "Stop";
+    in property <string> mon-label-search:      "Search";
+    in property <string> mon-label-kill:        "Kill Process";
+    in property <string> mon-label-state:       "State";
+    in property <string> mon-label-io-read:     "Read I/O";
+    in property <string> mon-label-io-write:    "Write I/O";
+    in property <string> mon-label-search-name: "Search by name...";
+    in property <string> mon-pid-display:       "--";
+    in property <string> mon-process-name:      "--";
+    in property <string> mon-thread-count:      "--";
+    in property <string> mon-uptime:            "--";
+    in property <string> mon-io-read:           "--";
+    in property <string> mon-io-write:          "--";
+    in property <string> mon-cpu-percent:       "--";
+    in property <string> mon-mem-percent:       "--";
+    in property <string> mon-state-text:        "--";
+    in property <int> mon-state-severity:       0;
+    in property <bool> mon-monitoring:          false;
+    in property <string> mon-error-message:     "";
+    in-out property <string> mon-pid-input:     "";
+    in-out property <string> mon-name-input:    "";
+    callback mon-start-by-pid();
+    callback mon-start-by-name();
+    callback mon-stop-monitoring();
+    callback mon-kill-process();
+
+    // ---- Tools properties ----
+    in property <string> tools-label-base64:   "Base64";
+    in property <string> tools-label-json:     "JSON";
+    in property <string> tools-label-encode:   "Encode";
+    in property <string> tools-label-decode:   "Decode";
+    in property <string> tools-label-url-safe: "URL-safe";
+    in property <string> tools-label-mime:     "MIME";
+    in property <string> tools-label-format:   "Format";
+    in property <string> tools-label-compact:  "Compact";
+    in property <string> tools-label-validate: "Validate";
+    in property <string> tools-label-copy:     "Copy";
+    in property <string> tools-label-clear:    "Clear";
+    in property <string> tools-label-input:    "Input";
+    in property <string> tools-label-output:   "Output";
+    in property <string> tools-label-valid:    "Valid JSON";
+    in property <string> tools-label-invalid:  "Invalid JSON";
+    in-out property <int> tools-active-tab:    0;
+    in-out property <string> tools-b64-input:  "";
+    in-out property <string> tools-b64-output: "";
+    in property <string> tools-b64-error:      "";
+    in-out property <bool> tools-b64-url-safe: false;
+    in-out property <bool> tools-b64-mime:     false;
+    in-out property <string> tools-json-input: "";
+    in-out property <string> tools-json-output:"";
+    in property <int> tools-json-valid:        -1;
+    callback tools-b64-encode();
+    callback tools-b64-decode();
+    callback tools-b64-clear();
+    callback tools-b64-copy-output();
+    callback tools-json-format();
+    callback tools-json-compact();
+    callback tools-json-validate();
+    callback tools-json-clear();
+    callback tools-json-copy-output();
+
+    // ---- Preferences properties ----
+    in property <string> pref-label-title:       "Preferences";
+    in property <string> pref-label-theme:       "Theme";
+    in property <string> pref-label-dark:        "Dark";
+    in property <string> pref-label-light:       "Light";
+    in property <string> pref-label-language:    "Language";
+    in property <string> pref-label-auto:        "Auto Refresh";
+    in property <string> pref-label-interval:    "Refresh Interval (seconds)";
+    in-out property <bool> pref-dark-mode:       true;
+    in-out property <string> pref-language:      "en";
+    in-out property <bool> pref-auto-refresh:    false;
+    in-out property <int> pref-refresh-interval: 5;
+    callback pref-dark-mode-toggled(bool);
+    callback pref-language-changed(string);
+    callback pref-auto-refresh-toggled(bool);
+    callback pref-refresh-interval-changed(int);
+
+    background: Theme.bg-secondary;
+
+    // View 0: Dashboard
+    if root.active-view == 0: DashboardView {
+        title: root.dash-title;
+        total-ports: root.dash-total-ports;
+        total-processes: root.dash-total-processes;
+        system-cpu: root.dash-system-cpu;
+        system-memory: root.dash-system-memory;
+        exposed-ports: root.dash-exposed-ports;
+        tcp-count: root.dash-tcp-count;
+        udp-count: root.dash-udp-count;
+        label-total-ports: root.dash-label-total-ports;
+        label-total-processes: root.dash-label-total-procs;
+        label-system-cpu: root.dash-label-sys-cpu;
+        label-system-memory: root.dash-label-sys-mem;
+        label-exposed-ports: root.dash-label-exposed;
+        label-tcp: root.dash-label-tcp;
+        label-udp: root.dash-label-udp;
+        refresh-requested => { root.dash-refresh-requested(); }
+    }
+
+    // View 1: Network Explorer
+    if root.active-view == 1: NetworkExplorerView {
+        label-total-listening: root.net-label-total-listening;
+        label-tcp-count: root.net-label-tcp-count;
+        label-udp-count: root.net-label-udp-count;
+        label-port: root.net-label-port;
+        label-protocol: root.net-label-protocol;
+        label-address: root.net-label-address;
+        label-state: root.net-label-state;
+        label-process: root.net-label-process;
+        label-pid: root.net-label-pid;
+        label-security: root.net-label-security;
+        label-refresh: root.net-label-refresh;
+        label-export: root.net-label-export;
+        total-listening: root.net-total-listening;
+        tcp-count: root.net-tcp-count;
+        udp-count: root.net-udp-count;
+        ports: root.net-ports;
+        selected-index: root.net-selected-index;
+        refresh-requested => { root.net-refresh-requested(); }
+        search-changed(v) => { root.net-search-changed(v); }
+        protocol-filter-changed(v) => { root.net-protocol-filter-changed(v); }
+        row-selected(i) => { root.net-row-selected(i); }
+        export-requested => { root.net-export-requested(); }
+    }
+
+    // View 2: Process Explorer
+    if root.active-view == 2: ProcessExplorerView {
+        label-total-processes: root.proc-label-total;
+        label-system-cpu: root.proc-label-sys-cpu;
+        label-system-memory: root.proc-label-sys-mem;
+        label-pid: root.proc-label-pid;
+        label-process: root.proc-label-process;
+        label-state: root.proc-label-state;
+        label-cpu: root.proc-label-cpu;
+        label-memory: root.proc-label-memory;
+        label-rss: root.proc-label-rss;
+        label-threads: root.proc-label-threads;
+        label-user: root.proc-label-user;
+        label-refresh: root.proc-label-refresh;
+        label-export: root.proc-label-export;
+        label-sort-cpu: root.proc-label-sort-cpu;
+        label-sort-memory: root.proc-label-sort-mem;
+        label-auto-refresh: root.proc-label-auto;
+        total-processes: root.proc-total-processes;
+        system-cpu: root.proc-system-cpu;
+        system-memory: root.proc-system-memory;
+        processes: root.proc-processes;
+        selected-index: root.proc-selected-index;
+        auto-refresh: root.proc-auto-refresh;
+        refresh-requested => { root.proc-refresh-requested(); }
+        search-changed(v) => { root.proc-search-changed(v); }
+        sort-changed(v) => { root.proc-sort-changed(v); }
+        row-selected(i) => { root.proc-row-selected(i); }
+        row-double-clicked(i) => { root.proc-row-double-clicked(i); }
+        export-requested => { root.proc-export-requested(); }
+        auto-refresh-toggled(v) => { root.proc-auto-refresh-toggled(v); }
+    }
+
+    // View 3: Process Monitor
+    if root.active-view == 3: ProcessMonitorView {
+        label-start: root.mon-label-start;
+        label-stop: root.mon-label-stop;
+        label-search: root.mon-label-search;
+        label-kill: root.mon-label-kill;
+        label-state: root.mon-label-state;
+        label-io-read: root.mon-label-io-read;
+        label-io-write: root.mon-label-io-write;
+        label-search-name: root.mon-label-search-name;
+        pid-display: root.mon-pid-display;
+        process-name: root.mon-process-name;
+        thread-count: root.mon-thread-count;
+        uptime: root.mon-uptime;
+        io-read: root.mon-io-read;
+        io-write: root.mon-io-write;
+        cpu-percent: root.mon-cpu-percent;
+        mem-percent: root.mon-mem-percent;
+        state-text: root.mon-state-text;
+        state-severity: root.mon-state-severity;
+        monitoring: root.mon-monitoring;
+        error-message: root.mon-error-message;
+        pid-input <=> root.mon-pid-input;
+        name-input <=> root.mon-name-input;
+        start-by-pid => { root.mon-start-by-pid(); }
+        start-by-name => { root.mon-start-by-name(); }
+        stop-monitoring => { root.mon-stop-monitoring(); }
+        kill-process => { root.mon-kill-process(); }
+    }
+
+    // View 4: Tools
+    if root.active-view == 4: ToolsView {
+        label-base64: root.tools-label-base64;
+        label-json: root.tools-label-json;
+        label-encode: root.tools-label-encode;
+        label-decode: root.tools-label-decode;
+        label-url-safe: root.tools-label-url-safe;
+        label-mime: root.tools-label-mime;
+        label-format: root.tools-label-format;
+        label-compact: root.tools-label-compact;
+        label-validate: root.tools-label-validate;
+        label-copy: root.tools-label-copy;
+        label-clear: root.tools-label-clear;
+        label-input: root.tools-label-input;
+        label-output: root.tools-label-output;
+        label-valid: root.tools-label-valid;
+        label-invalid: root.tools-label-invalid;
+        active-tab <=> root.tools-active-tab;
+        b64-input <=> root.tools-b64-input;
+        b64-output <=> root.tools-b64-output;
+        b64-error: root.tools-b64-error;
+        b64-url-safe <=> root.tools-b64-url-safe;
+        b64-mime <=> root.tools-b64-mime;
+        json-input <=> root.tools-json-input;
+        json-output <=> root.tools-json-output;
+        json-valid: root.tools-json-valid;
+        b64-encode => { root.tools-b64-encode(); }
+        b64-decode => { root.tools-b64-decode(); }
+        b64-clear => { root.tools-b64-clear(); }
+        b64-copy-output => { root.tools-b64-copy-output(); }
+        json-format => { root.tools-json-format(); }
+        json-compact => { root.tools-json-compact(); }
+        json-validate => { root.tools-json-validate(); }
+        json-clear => { root.tools-json-clear(); }
+        json-copy-output => { root.tools-json-copy-output(); }
+    }
+
+    // View 5: Preferences
+    if root.active-view == 5: PreferencesView {
+        label-title: root.pref-label-title;
+        label-theme: root.pref-label-theme;
+        label-theme-dark: root.pref-label-dark;
+        label-theme-light: root.pref-label-light;
+        label-language: root.pref-label-language;
+        label-auto-refresh: root.pref-label-auto;
+        label-refresh-interval: root.pref-label-interval;
+        dark-mode <=> root.pref-dark-mode;
+        language <=> root.pref-language;
+        auto-refresh <=> root.pref-auto-refresh;
+        refresh-interval <=> root.pref-refresh-interval;
+        dark-mode-toggled(v) => { root.pref-dark-mode-toggled(v); }
+        language-changed(v) => { root.pref-language-changed(v); }
+        auto-refresh-toggled(v) => { root.pref-auto-refresh-toggled(v); }
+        refresh-interval-changed(v) => { root.pref-refresh-interval-changed(v); }
+    }
+}

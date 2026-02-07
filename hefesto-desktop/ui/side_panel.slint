@@ -1,0 +1,238 @@
+import { Theme } from "theme.slint";
+
+// Navigation item indices:
+// 0 = Dashboard
+// 1 = Network Explorer
+// 2 = Process Explorer
+// 3 = Process Monitor
+// 4 = Tools
+// 5 = Preferences
+
+export component SidePanel inherits Rectangle {
+    in property <int> active-index: 0;
+    in property <string> title: "HEFESTO";
+
+    // i18n labels passed from Rust
+    in property <string> label-dashboard:          "Dashboard";
+    in property <string> label-network-explorer:   "Network Explorer";
+    in property <string> label-process-explorer:   "Process Explorer";
+    in property <string> label-process-monitor:    "Process Monitor";
+    in property <string> label-tools:              "Tools";
+    in property <string> label-preferences:        "Preferences";
+
+    // Group labels
+    in property <string> group-network:  "NETWORK";
+    in property <string> group-system:   "SYSTEM";
+    in property <string> group-utilities: "UTILITIES";
+
+    callback navigate(int);
+
+    width: 220px;
+    background: Theme.sidebar-bg;
+    border-width: 0;
+
+    // Right border line
+    Rectangle {
+        x: parent.width - 1px;
+        y: 0;
+        width: 1px;
+        height: parent.height;
+        background: Theme.border;
+    }
+
+    VerticalLayout {
+        padding: Theme.space-md;
+        spacing: Theme.space-xs;
+
+        // Title
+        Text {
+            text: root.title;
+            font-size: Theme.font-size-xl;
+            font-weight: 700;
+            color: Theme.sidebar-text;
+            horizontal-alignment: center;
+        }
+
+        // Separator
+        Rectangle {
+            height: 1px;
+            background: Theme.border;
+        }
+
+        Rectangle { height: Theme.space-sm; }
+
+        // Dashboard button
+        nav-dashboard := Rectangle {
+            height: 36px;
+            border-radius: Theme.radius-sm;
+            background: root.active-index == 0 ? Theme.sidebar-selected-bg : Colors.transparent;
+
+            TouchArea {
+                clicked => { root.navigate(0); }
+            }
+
+            HorizontalLayout {
+                padding-left: Theme.space-md;
+                alignment: start;
+                Text {
+                    text: root.label-dashboard;
+                    font-size: Theme.font-size-base;
+                    color: root.active-index == 0 ? Theme.sidebar-selected-text : Theme.sidebar-text;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        Rectangle { height: Theme.space-sm; }
+
+        // Network group label
+        Text {
+            text: root.group-network;
+            font-size: Theme.font-size-xs;
+            font-weight: 700;
+            color: Theme.fg-muted;
+            letter-spacing: 0.5px;
+        }
+
+        // Network Explorer
+        nav-network := Rectangle {
+            height: 36px;
+            border-radius: Theme.radius-sm;
+            background: root.active-index == 1 ? Theme.sidebar-selected-bg : Colors.transparent;
+
+            TouchArea {
+                clicked => { root.navigate(1); }
+            }
+
+            HorizontalLayout {
+                padding-left: Theme.space-md;
+                alignment: start;
+                Text {
+                    text: root.label-network-explorer;
+                    font-size: Theme.font-size-base;
+                    color: root.active-index == 1 ? Theme.sidebar-selected-text : Theme.sidebar-text;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        Rectangle { height: Theme.space-sm; }
+
+        // System group label
+        Text {
+            text: root.group-system;
+            font-size: Theme.font-size-xs;
+            font-weight: 700;
+            color: Theme.fg-muted;
+            letter-spacing: 0.5px;
+        }
+
+        // Process Explorer
+        nav-proc-explorer := Rectangle {
+            height: 36px;
+            border-radius: Theme.radius-sm;
+            background: root.active-index == 2 ? Theme.sidebar-selected-bg : Colors.transparent;
+
+            TouchArea {
+                clicked => { root.navigate(2); }
+            }
+
+            HorizontalLayout {
+                padding-left: Theme.space-md;
+                alignment: start;
+                Text {
+                    text: root.label-process-explorer;
+                    font-size: Theme.font-size-base;
+                    color: root.active-index == 2 ? Theme.sidebar-selected-text : Theme.sidebar-text;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        // Process Monitor
+        nav-proc-monitor := Rectangle {
+            height: 36px;
+            border-radius: Theme.radius-sm;
+            background: root.active-index == 3 ? Theme.sidebar-selected-bg : Colors.transparent;
+
+            TouchArea {
+                clicked => { root.navigate(3); }
+            }
+
+            HorizontalLayout {
+                padding-left: Theme.space-md;
+                alignment: start;
+                Text {
+                    text: root.label-process-monitor;
+                    font-size: Theme.font-size-base;
+                    color: root.active-index == 3 ? Theme.sidebar-selected-text : Theme.sidebar-text;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        Rectangle { height: Theme.space-sm; }
+
+        // Utilities group label
+        Text {
+            text: root.group-utilities;
+            font-size: Theme.font-size-xs;
+            font-weight: 700;
+            color: Theme.fg-muted;
+            letter-spacing: 0.5px;
+        }
+
+        // Tools
+        nav-tools := Rectangle {
+            height: 36px;
+            border-radius: Theme.radius-sm;
+            background: root.active-index == 4 ? Theme.sidebar-selected-bg : Colors.transparent;
+
+            TouchArea {
+                clicked => { root.navigate(4); }
+            }
+
+            HorizontalLayout {
+                padding-left: Theme.space-md;
+                alignment: start;
+                Text {
+                    text: root.label-tools;
+                    font-size: Theme.font-size-base;
+                    color: root.active-index == 4 ? Theme.sidebar-selected-text : Theme.sidebar-text;
+                    vertical-alignment: center;
+                }
+            }
+        }
+
+        // Spacer
+        Rectangle { vertical-stretch: 1; }
+
+        // Separator before preferences
+        Rectangle {
+            height: 1px;
+            background: Theme.border;
+        }
+
+        // Preferences
+        nav-prefs := Rectangle {
+            height: 36px;
+            border-radius: Theme.radius-sm;
+            background: root.active-index == 5 ? Theme.sidebar-selected-bg : Colors.transparent;
+
+            TouchArea {
+                clicked => { root.navigate(5); }
+            }
+
+            HorizontalLayout {
+                padding-left: Theme.space-md;
+                alignment: start;
+                Text {
+                    text: root.label-preferences;
+                    font-size: Theme.font-size-base;
+                    color: root.active-index == 5 ? Theme.sidebar-selected-text : Theme.sidebar-text;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

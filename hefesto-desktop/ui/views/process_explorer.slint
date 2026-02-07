@@ -1,0 +1,194 @@
+import { ScrollView, Button, ComboBox, ListView } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { KpiCard } from "../components/kpi_card.slint";
+import { SearchField } from "../components/search_field.slint";
+import { StatusBadge } from "../components/status_badge.slint";
+
+export struct ProcessEntry {
+    pid: string,
+    name: string,
+    state: string,
+    state-severity: int,
+    cpu: string,
+    memory: string,
+    rss: string,
+    threads: string,
+    user: string,
+}
+
+export component ProcessExplorerView inherits Rectangle {
+    // i18n labels
+    in property <string> label-total-processes:  "Total Processes";
+    in property <string> label-system-cpu:       "System CPU";
+    in property <string> label-system-memory:    "System Memory";
+    in property <string> label-pid:              "PID";
+    in property <string> label-process:          "Process";
+    in property <string> label-state:            "State";
+    in property <string> label-cpu:              "CPU %";
+    in property <string> label-memory:           "Memory %";
+    in property <string> label-rss:              "RSS";
+    in property <string> label-threads:          "Threads";
+    in property <string> label-user:             "User";
+    in property <string> label-refresh:          "Refresh";
+    in property <string> label-export:           "Export CSV";
+    in property <string> label-sort-cpu:         "Sort by CPU";
+    in property <string> label-sort-memory:      "Sort by Memory";
+    in property <string> label-auto-refresh:     "Auto Refresh";
+
+    // KPI values
+    in property <string> total-processes: "0";
+    in property <string> system-cpu:      "0.0%";
+    in property <string> system-memory:   "0.0%";
+
+    // Table data
+    in property <[ProcessEntry]> processes: [];
+    in property <int> selected-index: -1;
+    in-out property <bool> auto-refresh: false;
+
+    callback refresh-requested();
+    callback search-changed(string);
+    callback sort-changed(string);
+    callback row-selected(int);
+    callback row-double-clicked(int);
+    callback export-requested();
+    callback auto-refresh-toggled(bool);
+
+    background: Theme.bg-secondary;
+
+    VerticalLayout {
+        padding: Theme.space-md;
+        spacing: Theme.space-md;
+
+        // KPI row
+        HorizontalLayout {
+            spacing: Theme.space-sm;
+
+            KpiCard {
+                label: root.label-total-processes;
+                value: root.total-processes;
+                accent-color: Theme.teal;
+            }
+
+            KpiCard {
+                label: root.label-system-cpu;
+                value: root.system-cpu;
+                accent-color: Theme.peach;
+            }
+
+            KpiCard {
+                label: root.label-system-memory;
+                value: root.system-memory;
+                accent-color: Theme.info;
+            }
+
+            Rectangle { horizontal-stretch: 1; }
+        }
+
+        // Toolbar
+        HorizontalLayout {
+            spacing: Theme.space-sm;
+            alignment: start;
+
+            SearchField {
+                horizontal-stretch: 1;
+                placeholder: "Search processes...";
+                edited(value) => { root.search-changed(value); }
+            }
+
+            ComboBox {
+                width: 140px;
+                model: [root.label-sort-cpu, root.label-sort-memory, "PID", "Name"];
+                current-value: root.label-sort-cpu;
+                selected(value) => { root.sort-changed(value); }
+            }
+
+            Button {
+                text: root.label-auto-refresh;
+                checkable: true;
+                checked: root.auto-refresh;
+                clicked => {
+                    root.auto-refresh = !root.auto-refresh;
+                    root.auto-refresh-toggled(root.auto-refresh);
+                }
+            }
+
+            Button {
+                text: root.label-refresh;
+                clicked => { root.refresh-requested(); }
+            }
+
+            Button {
+                text: root.label-export;
+                clicked => { root.export-requested(); }
+            }
+        }
+
+        // Table header
+        Rectangle {
+            height: 32px;
+            background: Theme.bg-surface;
+            border-radius: Theme.radius-sm;
+
+            HorizontalLayout {
+                padding-left: Theme.space-md;
+                padding-right: Theme.space-md;
+                spacing: 0;
+
+                Text { text: root.label-pid;     width: 70px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-process;  horizontal-stretch: 1; font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-state;    width: 90px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-cpu;      width: 70px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; horizontal-alignment: right; }
+                Text { text: root.label-memory;   width: 80px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; horizontal-alignment: right; }
+                Text { text: root.label-rss;      width: 80px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; horizontal-alignment: right; }
+                Text { text: root.label-threads;  width: 60px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; horizontal-alignment: right; }
+                Text { text: root.label-user;     width: 90px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+            }
+        }
+
+        // Table body
+        ListView {
+            vertical-stretch: 1;
+
+            for entry[idx] in root.processes: Rectangle {
+                height: 34px;
+                background: idx == root.selected-index ? Theme.bg-surface-hover
+                          : mod(idx, 2) == 0 ? Colors.transparent
+                          : Theme.bg-surface.with-alpha(0.3);
+                border-radius: Theme.radius-sm;
+
+                TouchArea {
+                    clicked => { root.row-selected(idx); }
+                    double-clicked => { root.row-double-clicked(idx); }
+                }
+
+                HorizontalLayout {
+                    padding-left: Theme.space-md;
+                    padding-right: Theme.space-md;
+                    spacing: 0;
+
+                    Text { text: entry.pid;  width: 70px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; }
+                    Text { text: entry.name; horizontal-stretch: 1; font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; overflow: elide; }
+
+                    // State badge
+                    Rectangle {
+                        width: 90px;
+                        vertical-stretch: 1;
+                        HorizontalLayout {
+                            alignment: start;
+                            StatusBadge {
+                                label: entry.state;
+                                severity: entry.state-severity;
+                            }
+                        }
+                    }
+
+                    Text { text: entry.cpu;     width: 70px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; horizontal-alignment: right; }
+                    Text { text: entry.memory;  width: 80px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; horizontal-alignment: right; }
+                    Text { text: entry.rss;     width: 80px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; horizontal-alignment: right; }
+                    Text { text: entry.threads; width: 60px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; horizontal-alignment: right; }
+                    Text { text: entry.user;    width: 90px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; overflow: elide; }
+                }
+            }
+        }
+    }
+}

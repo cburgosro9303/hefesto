@@ -1,0 +1,30 @@
+import { Theme } from "../theme.slint";
+
+// Severity levels: 0=info, 1=success, 2=warning, 3=critical
+export component StatusBadge inherits Rectangle {
+    in property <string> label: "";
+    in property <int> severity: 0;
+
+    height: 20px;
+    min-width: 40px;
+    border-radius: Theme.radius-pill;
+    background: severity == 3 ? Theme.danger
+              : severity == 2 ? Theme.warning
+              : severity == 1 ? Theme.success
+              : Theme.accent;
+
+    HorizontalLayout {
+        padding-left: Theme.space-sm;
+        padding-right: Theme.space-sm;
+        alignment: center;
+
+        Text {
+            text: root.label;
+            font-size: Theme.font-size-xs;
+            font-weight: 700;
+            color: severity == 2 ? Theme.dark-crust : (Theme.dark-mode ? Theme.dark-crust : #ffffff);
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+}

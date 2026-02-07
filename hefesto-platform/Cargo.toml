@@ -1,0 +1,12 @@
+[package]
+name = "hefesto-platform"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hefesto-domain = { path = "../hefesto-domain" }
+sysinfo = { workspace = true }
+regex = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+chrono = { workspace = true }

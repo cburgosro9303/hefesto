@@ -1,0 +1,277 @@
+import { ScrollView, Button, LineEdit } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { KpiCard } from "../components/kpi_card.slint";
+import { StatusBadge } from "../components/status_badge.slint";
+
+export component ProcessMonitorView inherits Rectangle {
+    // i18n labels
+    in property <string> label-start:      "Start";
+    in property <string> label-stop:       "Stop";
+    in property <string> label-search:     "Search";
+    in property <string> label-kill:       "Kill Process";
+    in property <string> label-state:      "State";
+    in property <string> label-io-read:    "Read I/O";
+    in property <string> label-io-write:   "Write I/O";
+    in property <string> label-search-name:"Search by name...";
+
+    // Monitor data
+    in property <string> pid-display:      "--";
+    in property <string> process-name:     "--";
+    in property <string> thread-count:     "--";
+    in property <string> uptime:           "--";
+    in property <string> io-read:          "--";
+    in property <string> io-write:         "--";
+    in property <string> cpu-percent:      "--";
+    in property <string> mem-percent:      "--";
+    in property <string> state-text:       "--";
+    in property <int> state-severity:      0;
+    in property <bool> monitoring:         false;
+    in property <string> error-message:    "";
+
+    // PID/Name input
+    in-out property <string> pid-input:    "";
+    in-out property <string> name-input:   "";
+
+    callback start-by-pid();
+    callback start-by-name();
+    callback stop-monitoring();
+    callback kill-process();
+
+    background: Theme.bg-secondary;
+
+    ScrollView {
+        VerticalLayout {
+            padding: Theme.space-md;
+            spacing: Theme.space-md;
+
+            // Toolbar
+            HorizontalLayout {
+                spacing: Theme.space-sm;
+                alignment: start;
+
+                Text {
+                    text: "PID:";
+                    font-size: Theme.font-size-base;
+                    font-weight: 700;
+                    color: Theme.fg-primary;
+                    vertical-alignment: center;
+                }
+
+                LineEdit {
+                    width: 120px;
+                    text <=> root.pid-input;
+                    placeholder-text: "Enter PID...";
+                    font-size: Theme.font-size-base;
+                }
+
+                Button {
+                    text: root.label-start;
+                    enabled: !root.monitoring;
+                    clicked => { root.start-by-pid(); }
+                }
+
+                // Vertical separator
+                Rectangle {
+                    width: 1px;
+                    height: 28px;
+                    background: Theme.border;
+                }
+
+                Text {
+                    text: "Name:";
+                    font-size: Theme.font-size-base;
+                    font-weight: 700;
+                    color: Theme.fg-primary;
+                    vertical-alignment: center;
+                }
+
+                LineEdit {
+                    width: 160px;
+                    text <=> root.name-input;
+                    placeholder-text: root.label-search-name;
+                    font-size: Theme.font-size-base;
+                }
+
+                Button {
+                    text: root.label-search;
+                    enabled: !root.monitoring;
+                    clicked => { root.start-by-name(); }
+                }
+
+                // Vertical separator
+                Rectangle {
+                    width: 1px;
+                    height: 28px;
+                    background: Theme.border;
+                }
+
+                Button {
+                    text: root.label-stop;
+                    enabled: root.monitoring;
+                    clicked => { root.stop-monitoring(); }
+                }
+
+                Button {
+                    text: root.label-kill;
+                    enabled: root.pid-display != "--";
+                    clicked => { root.kill-process(); }
+                }
+            }
+
+            // Error message
+            if root.error-message != "": Rectangle {
+                height: 28px;
+                border-radius: Theme.radius-sm;
+                background: Theme.danger.with-alpha(0.15);
+
+                HorizontalLayout {
+                    padding-left: Theme.space-md;
+                    alignment: start;
+                    Text {
+                        text: root.error-message;
+                        font-size: Theme.font-size-sm;
+                        color: Theme.danger;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+
+            // State row
+            HorizontalLayout {
+                spacing: Theme.space-sm;
+                alignment: start;
+
+                Text {
+                    text: root.label-state + ":";
+                    font-size: Theme.font-size-base;
+                    font-weight: 700;
+                    color: Theme.fg-primary;
+                    vertical-alignment: center;
+                }
+
+                StatusBadge {
+                    label: root.state-text;
+                    severity: root.state-severity;
+                }
+            }
+
+            // CPU and Memory gauges row
+            HorizontalLayout {
+                spacing: Theme.space-lg;
+                alignment: center;
+
+                // CPU gauge
+                Rectangle {
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 75px;
+                    background: Theme.bg-surface;
+                    border-width: 4px;
+                    border-color: Theme.peach;
+
+                    VerticalLayout {
+                        alignment: center;
+                        Text {
+                            text: root.cpu-percent;
+                            font-size: Theme.font-size-xxl;
+                            font-weight: 700;
+                            color: Theme.fg-primary;
+                            horizontal-alignment: center;
+                        }
+                        Text {
+                            text: "CPU";
+                            font-size: Theme.font-size-sm;
+                            color: Theme.fg-secondary;
+                            horizontal-alignment: center;
+                        }
+                    }
+                }
+
+                // Memory gauge
+                Rectangle {
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 75px;
+                    background: Theme.bg-surface;
+                    border-width: 4px;
+                    border-color: Theme.info;
+
+                    VerticalLayout {
+                        alignment: center;
+                        Text {
+                            text: root.mem-percent;
+                            font-size: Theme.font-size-xxl;
+                            font-weight: 700;
+                            color: Theme.fg-primary;
+                            horizontal-alignment: center;
+                        }
+                        Text {
+                            text: "Memory";
+                            font-size: Theme.font-size-sm;
+                            color: Theme.fg-secondary;
+                            horizontal-alignment: center;
+                        }
+                    }
+                }
+            }
+
+            // KPI cards row
+            HorizontalLayout {
+                spacing: Theme.space-sm;
+
+                KpiCard {
+                    label: "PID";
+                    value: root.pid-display;
+                    accent-color: Theme.accent;
+                }
+
+                KpiCard {
+                    label: "Process";
+                    value: root.process-name;
+                    accent-color: Theme.teal;
+                }
+
+                KpiCard {
+                    label: "Threads";
+                    value: root.thread-count;
+                    accent-color: Theme.info;
+                }
+
+                KpiCard {
+                    label: "Uptime";
+                    value: root.uptime;
+                    accent-color: Theme.success;
+                }
+
+                KpiCard {
+                    label: root.label-io-read;
+                    value: root.io-read;
+                    accent-color: Theme.peach;
+                }
+
+                KpiCard {
+                    label: root.label-io-write;
+                    value: root.io-write;
+                    accent-color: Theme.warning;
+                }
+            }
+
+            // Placeholder for charts area
+            Rectangle {
+                min-height: 200px;
+                border-radius: Theme.radius-md;
+                background: Theme.bg-primary;
+                border-width: 1px;
+                border-color: Theme.border;
+
+                Text {
+                    text: root.monitoring ? "Monitoring active - CPU/Memory history" : "Enter a PID or name to start monitoring";
+                    color: Theme.fg-muted;
+                    font-size: Theme.font-size-base;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,99 @@
+// HEFESTO Desktop - Design Tokens
+// Catppuccin Mocha (dark) and custom light theme
+
+export global Theme {
+    // -- Current theme flag (true = dark) --
+    in-out property <bool> dark-mode: true;
+
+    // -- Dark palette (Catppuccin Mocha) --
+    out property <color> dark-base:       #1e1e2e;
+    out property <color> dark-mantle:     #181825;
+    out property <color> dark-crust:      #11111b;
+    out property <color> dark-surface0:   #313244;
+    out property <color> dark-surface1:   #45475a;
+    out property <color> dark-surface2:   #585b70;
+    out property <color> dark-text:       #cdd6f4;
+    out property <color> dark-subtext:    #a6adc8;
+    out property <color> dark-overlay:    #6c7086;
+    out property <color> dark-blue:       #89b4fa;
+    out property <color> dark-green:      #a6e3a1;
+    out property <color> dark-red:        #f38ba8;
+    out property <color> dark-yellow:     #f9e2af;
+    out property <color> dark-mauve:      #cba6f7;
+    out property <color> dark-teal:       #94e2d5;
+    out property <color> dark-peach:      #fab387;
+
+    // -- Light palette --
+    out property <color> light-base:      #ffffff;
+    out property <color> light-mantle:    #f5f5f5;
+    out property <color> light-crust:     #e8e8e8;
+    out property <color> light-surface0:  #ecf0f1;
+    out property <color> light-surface1:  #dfe6e9;
+    out property <color> light-surface2:  #bdc3c7;
+    out property <color> light-text:      #2c3e50;
+    out property <color> light-subtext:   #636e72;
+    out property <color> light-overlay:   #7f8c8d;
+    out property <color> light-blue:      #2980b9;
+    out property <color> light-green:     #27ae60;
+    out property <color> light-red:       #e74c3c;
+    out property <color> light-yellow:    #f39c12;
+    out property <color> light-mauve:     #8e44ad;
+    out property <color> light-teal:      #16a085;
+    out property <color> light-peach:     #e67e22;
+
+    // -- Resolved semantic tokens --
+    out property <color> bg-primary:      dark-mode ? dark-base     : light-base;
+    out property <color> bg-secondary:    dark-mode ? dark-mantle   : light-mantle;
+    out property <color> bg-tertiary:     dark-mode ? dark-crust    : light-crust;
+    out property <color> bg-surface:      dark-mode ? dark-surface0 : light-surface0;
+    out property <color> bg-surface-hover:dark-mode ? dark-surface1 : light-surface1;
+    out property <color> bg-surface-alt:  dark-mode ? dark-surface2 : light-surface2;
+
+    out property <color> fg-primary:      dark-mode ? dark-text    : light-text;
+    out property <color> fg-secondary:    dark-mode ? dark-subtext : light-subtext;
+    out property <color> fg-muted:        dark-mode ? dark-overlay : light-overlay;
+
+    out property <color> accent:          dark-mode ? dark-blue    : light-blue;
+    out property <color> success:         dark-mode ? dark-green   : light-green;
+    out property <color> danger:          dark-mode ? dark-red     : light-red;
+    out property <color> warning:         dark-mode ? dark-yellow  : light-yellow;
+    out property <color> info:            dark-mode ? dark-mauve   : light-mauve;
+    out property <color> teal:            dark-mode ? dark-teal    : light-teal;
+    out property <color> peach:           dark-mode ? dark-peach   : light-peach;
+
+    out property <color> border:          dark-mode ? dark-surface0 : light-surface2;
+
+    // -- Sidebar tokens --
+    out property <color> sidebar-bg:              bg-primary;
+    out property <color> sidebar-text:            fg-primary;
+    out property <color> sidebar-hover:           bg-surface;
+    out property <color> sidebar-selected-bg:     accent;
+    out property <color> sidebar-selected-text:   dark-mode ? dark-crust : #ffffff;
+
+    // -- Status bar tokens --
+    out property <color> statusbar-bg:    bg-primary;
+    out property <color> statusbar-text:  fg-muted;
+    out property <color> statusbar-border:border;
+
+    // -- Typography --
+    out property <length> font-size-xs:   10px;
+    out property <length> font-size-sm:   11px;
+    out property <length> font-size-base: 13px;
+    out property <length> font-size-lg:   16px;
+    out property <length> font-size-xl:   18px;
+    out property <length> font-size-xxl:  28px;
+
+    // -- Spacing --
+    out property <length> space-xs:  4px;
+    out property <length> space-sm:  8px;
+    out property <length> space-md:  12px;
+    out property <length> space-lg:  16px;
+    out property <length> space-xl:  20px;
+    out property <length> space-xxl: 24px;
+
+    // -- Borders --
+    out property <length> radius-sm: 4px;
+    out property <length> radius-md: 8px;
+    out property <length> radius-lg: 16px;
+    out property <length> radius-pill: 100px;
+}

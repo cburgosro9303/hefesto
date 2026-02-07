@@ -1,0 +1,186 @@
+import { Button, CheckBox, ComboBox, SpinBox, Slider } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+
+export component PreferencesView inherits Rectangle {
+    // i18n labels
+    in property <string> label-title:            "Preferences";
+    in property <string> label-theme:            "Theme";
+    in property <string> label-theme-dark:       "Dark";
+    in property <string> label-theme-light:      "Light";
+    in property <string> label-language:          "Language";
+    in property <string> label-auto-refresh:      "Auto Refresh";
+    in property <string> label-refresh-interval:  "Refresh Interval (seconds)";
+
+    // State
+    in-out property <bool> dark-mode: true;
+    in-out property <string> language: "en";
+    in-out property <bool> auto-refresh: false;
+    in-out property <int> refresh-interval: 5;
+
+    callback dark-mode-toggled(bool);
+    callback language-changed(string);
+    callback auto-refresh-toggled(bool);
+    callback refresh-interval-changed(int);
+
+    background: Theme.bg-secondary;
+
+    VerticalLayout {
+        padding: Theme.space-xl;
+        spacing: Theme.space-lg;
+
+        // Title
+        Text {
+            text: root.label-title;
+            font-size: Theme.font-size-xl;
+            font-weight: 700;
+            color: Theme.fg-primary;
+        }
+
+        // Separator
+        Rectangle {
+            height: 1px;
+            background: Theme.border;
+        }
+
+        // Theme section
+        VerticalLayout {
+            spacing: Theme.space-sm;
+
+            Text {
+                text: root.label-theme;
+                font-size: Theme.font-size-base;
+                font-weight: 700;
+                color: Theme.fg-primary;
+            }
+
+            HorizontalLayout {
+                spacing: Theme.space-md;
+
+                // Dark mode button
+                Rectangle {
+                    width: 120px;
+                    height: 40px;
+                    border-radius: Theme.radius-sm;
+                    background: root.dark-mode ? Theme.accent : Theme.bg-surface;
+                    border-width: 1px;
+                    border-color: root.dark-mode ? Theme.accent : Theme.border;
+
+                    TouchArea {
+                        clicked => {
+                            root.dark-mode = true;
+                            root.dark-mode-toggled(true);
+                        }
+                    }
+
+                    Text {
+                        text: root.label-theme-dark;
+                        font-size: Theme.font-size-base;
+                        color: root.dark-mode ? Theme.sidebar-selected-text : Theme.fg-primary;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+
+                // Light mode button
+                Rectangle {
+                    width: 120px;
+                    height: 40px;
+                    border-radius: Theme.radius-sm;
+                    background: !root.dark-mode ? Theme.accent : Theme.bg-surface;
+                    border-width: 1px;
+                    border-color: !root.dark-mode ? Theme.accent : Theme.border;
+
+                    TouchArea {
+                        clicked => {
+                            root.dark-mode = false;
+                            root.dark-mode-toggled(false);
+                        }
+                    }
+
+                    Text {
+                        text: root.label-theme-light;
+                        font-size: Theme.font-size-base;
+                        color: !root.dark-mode ? Theme.sidebar-selected-text : Theme.fg-primary;
+                        horizontal-alignment: center;
+                        vertical-alignment: center;
+                    }
+                }
+            }
+        }
+
+        // Separator
+        Rectangle {
+            height: 1px;
+            background: Theme.border;
+        }
+
+        // Language section
+        VerticalLayout {
+            spacing: Theme.space-sm;
+
+            Text {
+                text: root.label-language;
+                font-size: Theme.font-size-base;
+                font-weight: 700;
+                color: Theme.fg-primary;
+            }
+
+            ComboBox {
+                width: 200px;
+                model: ["en", "es"];
+                current-value: root.language;
+                selected(value) => {
+                    root.language = value;
+                    root.language-changed(value);
+                }
+            }
+        }
+
+        // Separator
+        Rectangle {
+            height: 1px;
+            background: Theme.border;
+        }
+
+        // Auto-refresh section
+        VerticalLayout {
+            spacing: Theme.space-sm;
+
+            Text {
+                text: root.label-auto-refresh;
+                font-size: Theme.font-size-base;
+                font-weight: 700;
+                color: Theme.fg-primary;
+            }
+
+            CheckBox {
+                text: root.label-auto-refresh;
+                checked: root.auto-refresh;
+                toggled => {
+                    root.auto-refresh = self.checked;
+                    root.auto-refresh-toggled(self.checked);
+                }
+            }
+
+            Text {
+                text: root.label-refresh-interval;
+                font-size: Theme.font-size-sm;
+                color: Theme.fg-secondary;
+            }
+
+            SpinBox {
+                width: 160px;
+                minimum: 1;
+                maximum: 60;
+                value: root.refresh-interval;
+                edited(value) => {
+                    root.refresh-interval = value;
+                    root.refresh-interval-changed(value);
+                }
+            }
+        }
+
+        // Spacer
+        Rectangle { vertical-stretch: 1; }
+    }
+}

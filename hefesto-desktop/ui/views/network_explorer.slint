@@ -1,0 +1,172 @@
+import { ScrollView, Button, ComboBox, ListView } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { KpiCard } from "../components/kpi_card.slint";
+import { SearchField } from "../components/search_field.slint";
+import { StatusBadge } from "../components/status_badge.slint";
+
+export struct PortEntry {
+    port: string,
+    protocol: string,
+    address: string,
+    state: string,
+    process-name: string,
+    pid: string,
+    security: string,
+    is-exposed: bool,
+}
+
+export component NetworkExplorerView inherits Rectangle {
+    // i18n labels
+    in property <string> label-total-listening: "Total Listening";
+    in property <string> label-tcp-count:       "TCP Ports";
+    in property <string> label-udp-count:       "UDP Ports";
+    in property <string> label-port:            "Port";
+    in property <string> label-protocol:        "Protocol";
+    in property <string> label-address:         "Address";
+    in property <string> label-state:           "State";
+    in property <string> label-process:         "Process";
+    in property <string> label-pid:             "PID";
+    in property <string> label-security:        "Security";
+    in property <string> label-refresh:         "Refresh";
+    in property <string> label-export:          "Export CSV";
+
+    // KPI values
+    in property <string> total-listening: "0";
+    in property <string> tcp-count:       "0";
+    in property <string> udp-count:       "0";
+
+    // Table data
+    in property <[PortEntry]> ports: [];
+    in property <int> selected-index: -1;
+
+    callback refresh-requested();
+    callback search-changed(string);
+    callback protocol-filter-changed(string);
+    callback row-selected(int);
+    callback export-requested();
+
+    background: Theme.bg-secondary;
+
+    VerticalLayout {
+        padding: Theme.space-md;
+        spacing: Theme.space-md;
+
+        // KPI row
+        HorizontalLayout {
+            spacing: Theme.space-sm;
+
+            KpiCard {
+                label: root.label-total-listening;
+                value: root.total-listening;
+                accent-color: Theme.accent;
+            }
+
+            KpiCard {
+                label: root.label-tcp-count;
+                value: root.tcp-count;
+                accent-color: Theme.teal;
+            }
+
+            KpiCard {
+                label: root.label-udp-count;
+                value: root.udp-count;
+                accent-color: Theme.warning;
+            }
+
+            Rectangle { horizontal-stretch: 1; }
+        }
+
+        // Toolbar
+        HorizontalLayout {
+            spacing: Theme.space-sm;
+            alignment: start;
+
+            SearchField {
+                horizontal-stretch: 1;
+                placeholder: "Search ports, processes...";
+                edited(value) => { root.search-changed(value); }
+            }
+
+            ComboBox {
+                width: 100px;
+                model: ["ALL", "TCP", "UDP"];
+                current-value: "ALL";
+                selected(value) => { root.protocol-filter-changed(value); }
+            }
+
+            Button {
+                text: root.label-refresh;
+                clicked => { root.refresh-requested(); }
+            }
+
+            Button {
+                text: root.label-export;
+                clicked => { root.export-requested(); }
+            }
+        }
+
+        // Table header
+        Rectangle {
+            height: 32px;
+            background: Theme.bg-surface;
+            border-radius: Theme.radius-sm;
+
+            HorizontalLayout {
+                padding-left: Theme.space-md;
+                padding-right: Theme.space-md;
+                spacing: 0;
+
+                Text { text: root.label-port;     width: 70px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-protocol;  width: 70px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-address;   width: 130px; font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-state;     width: 90px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-process;   horizontal-stretch: 1; font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-pid;       width: 70px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+                Text { text: root.label-security;  width: 90px;  font-size: Theme.font-size-sm; font-weight: 700; color: Theme.fg-secondary; vertical-alignment: center; }
+            }
+        }
+
+        // Table body
+        ListView {
+            vertical-stretch: 1;
+
+            for entry[idx] in root.ports: Rectangle {
+                height: 36px;
+                background: idx == root.selected-index ? Theme.bg-surface-hover
+                          : mod(idx, 2) == 0 ? Colors.transparent
+                          : Theme.bg-surface.with-alpha(0.3);
+                border-radius: Theme.radius-sm;
+
+                TouchArea {
+                    clicked => { root.row-selected(idx); }
+                }
+
+                HorizontalLayout {
+                    padding-left: Theme.space-md;
+                    padding-right: Theme.space-md;
+                    spacing: 0;
+
+                    Text { text: entry.port;         width: 70px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; }
+                    Text { text: entry.protocol;     width: 70px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; }
+                    Text { text: entry.address;      width: 130px; font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; overflow: elide; }
+                    Text { text: entry.state;        width: 90px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; }
+                    Text { text: entry.process-name; horizontal-stretch: 1; font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; overflow: elide; }
+                    Text { text: entry.pid;          width: 70px;  font-size: Theme.font-size-base; color: Theme.fg-primary; vertical-alignment: center; }
+
+                    // Security badge
+                    Rectangle {
+                        width: 90px;
+                        vertical-stretch: 1;
+                        HorizontalLayout {
+                            alignment: start;
+                            StatusBadge {
+                                label: entry.security;
+                                severity: entry.is-exposed ? 2 : 1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,38 @@
+import { LineEdit } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+
+export component SearchField inherits Rectangle {
+    in property <string> placeholder: "Search...";
+    in-out property <string> text <=> input.text;
+
+    callback edited(string);
+
+    height: 32px;
+    border-radius: Theme.radius-lg;
+    background: Theme.bg-surface;
+    border-width: 1px;
+    border-color: Theme.border;
+
+    HorizontalLayout {
+        padding-left: Theme.space-md;
+        padding-right: Theme.space-sm;
+        spacing: Theme.space-sm;
+        alignment: center;
+
+        // Search icon (magnifying glass via unicode)
+        Text {
+            text: "\u{1F50D}";
+            font-size: Theme.font-size-sm;
+            vertical-alignment: center;
+            width: 16px;
+        }
+
+        input := LineEdit {
+            placeholder-text: root.placeholder;
+            font-size: Theme.font-size-base;
+            edited(value) => {
+                root.edited(value);
+            }
+        }
+    }
+}

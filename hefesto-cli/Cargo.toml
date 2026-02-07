@@ -1,0 +1,11 @@
+[package]
+name = "hefesto-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+hefesto-core = { path = "../hefesto-core" }
+hefesto-domain = { path = "../hefesto-domain" }
+hefesto-platform = { path = "../hefesto-platform" }
+tracing-subscriber = { workspace = true }
+tracing = { workspace = true }

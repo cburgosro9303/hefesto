@@ -1,0 +1,54 @@
+import { Theme } from "theme.slint";
+
+export component StatusBar inherits Rectangle {
+    in property <string> status-text: "Ready";
+    in property <string> clock-text: "00:00:00";
+    in property <int> task-count: 0;
+
+    height: 28px;
+    background: Theme.statusbar-bg;
+
+    // Top border line
+    Rectangle {
+        y: 0;
+        width: parent.width;
+        height: 1px;
+        background: Theme.statusbar-border;
+    }
+
+    HorizontalLayout {
+        padding-left: Theme.space-md;
+        padding-right: Theme.space-md;
+        padding-top: 1px;
+        spacing: Theme.space-md;
+        alignment: stretch;
+
+        // Status text
+        Text {
+            text: root.status-text;
+            font-size: Theme.font-size-sm;
+            color: Theme.statusbar-text;
+            vertical-alignment: center;
+        }
+
+        // Task count (only shown when > 0)
+        Text {
+            text: root.task-count > 0 ? "\{root.task-count} task(s) running" : "";
+            font-size: Theme.font-size-sm;
+            color: Theme.accent;
+            vertical-alignment: center;
+        }
+
+        // Spacer
+        Rectangle { horizontal-stretch: 1; }
+
+        // Clock
+        Text {
+            text: root.clock-text;
+            font-size: Theme.font-size-sm;
+            color: Theme.statusbar-text;
+            vertical-alignment: center;
+            horizontal-alignment: right;
+        }
+    }
+}

@@ -1,0 +1,116 @@
+import { ScrollView } from "std-widgets.slint";
+import { Theme } from "../theme.slint";
+import { KpiCard } from "../components/kpi_card.slint";
+
+export component DashboardView inherits Rectangle {
+    in property <string> title: "Dashboard";
+    in property <string> total-ports: "--";
+    in property <string> total-processes: "--";
+    in property <string> system-cpu: "--";
+    in property <string> system-memory: "--";
+    in property <string> exposed-ports: "--";
+    in property <string> tcp-count: "--";
+    in property <string> udp-count: "--";
+
+    // i18n labels
+    in property <string> label-total-ports:     "Total Listening";
+    in property <string> label-total-processes:  "Total Processes";
+    in property <string> label-system-cpu:       "System CPU";
+    in property <string> label-system-memory:    "System Memory";
+    in property <string> label-exposed-ports:    "Exposed Ports";
+    in property <string> label-tcp:              "TCP Ports";
+    in property <string> label-udp:              "UDP Ports";
+
+    callback refresh-requested();
+
+    background: Theme.bg-secondary;
+
+    ScrollView {
+        VerticalLayout {
+            padding: Theme.space-lg;
+            spacing: Theme.space-lg;
+
+            // Section title
+            Text {
+                text: root.title;
+                font-size: Theme.font-size-xl;
+                font-weight: 700;
+                color: Theme.fg-primary;
+            }
+
+            // KPI row 1 - Overview
+            HorizontalLayout {
+                spacing: Theme.space-md;
+
+                KpiCard {
+                    label: root.label-total-ports;
+                    value: root.total-ports;
+                    accent-color: Theme.accent;
+                }
+
+                KpiCard {
+                    label: root.label-total-processes;
+                    value: root.total-processes;
+                    accent-color: Theme.teal;
+                }
+
+                KpiCard {
+                    label: root.label-system-cpu;
+                    value: root.system-cpu;
+                    accent-color: Theme.peach;
+                }
+
+                KpiCard {
+                    label: root.label-system-memory;
+                    value: root.system-memory;
+                    accent-color: Theme.info;
+                }
+            }
+
+            // KPI row 2 - Network details
+            HorizontalLayout {
+                spacing: Theme.space-md;
+
+                KpiCard {
+                    label: root.label-exposed-ports;
+                    value: root.exposed-ports;
+                    accent-color: Theme.danger;
+                }
+
+                KpiCard {
+                    label: root.label-tcp;
+                    value: root.tcp-count;
+                    accent-color: Theme.accent;
+                }
+
+                KpiCard {
+                    label: root.label-udp;
+                    value: root.udp-count;
+                    accent-color: Theme.warning;
+                }
+
+                // Spacer card placeholder
+                Rectangle {
+                    horizontal-stretch: 1;
+                }
+            }
+
+            // Placeholder area for future widgets
+            Rectangle {
+                min-height: 200px;
+                border-radius: Theme.radius-md;
+                background: Theme.bg-primary;
+                border-width: 1px;
+                border-color: Theme.border;
+
+                Text {
+                    text: "Widget area - coming soon";
+                    color: Theme.fg-muted;
+                    font-size: Theme.font-size-base;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+        }
+    }
+}

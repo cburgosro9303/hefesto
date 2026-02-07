@@ -1,0 +1,50 @@
+import { Theme } from "../theme.slint";
+
+export component KpiCard inherits Rectangle {
+    in property <string> label: "Label";
+    in property <string> value: "--";
+    in property <color> accent-color: Theme.accent;
+
+    min-width: 140px;
+    min-height: 90px;
+    preferred-width: 180px;
+    preferred-height: 100px;
+    border-radius: Theme.radius-md;
+    background: Theme.bg-primary;
+    border-width: 1px;
+    border-color: Theme.border;
+
+    // Left accent bar
+    Rectangle {
+        x: 0;
+        y: 8px;
+        width: 3px;
+        height: parent.height - 16px;
+        border-radius: 2px;
+        background: accent-color;
+    }
+
+    VerticalLayout {
+        padding-left: Theme.space-lg;
+        padding-right: Theme.space-md;
+        padding-top: Theme.space-md;
+        padding-bottom: Theme.space-md;
+        spacing: Theme.space-xs;
+        alignment: center;
+
+        Text {
+            text: root.value;
+            font-size: Theme.font-size-xxl;
+            font-weight: 700;
+            color: Theme.fg-primary;
+            overflow: elide;
+        }
+
+        Text {
+            text: root.label;
+            font-size: Theme.font-size-sm;
+            color: Theme.fg-secondary;
+            overflow: elide;
+        }
+    }
+}

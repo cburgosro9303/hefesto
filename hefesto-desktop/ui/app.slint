@@ -1,0 +1,381 @@
+import { Theme } from "theme.slint";
+import { SidePanel } from "side_panel.slint";
+import { StatusBar } from "status_bar.slint";
+import { ContentArea } from "content_area.slint";
+import { PortEntry, ProcessEntry } from "content_area.slint";
+
+export { Theme, PortEntry, ProcessEntry }
+
+export component AppWindow inherits Window {
+    title: "HEFESTO Desktop";
+    min-width: 1024px;
+    min-height: 700px;
+    preferred-width: 1280px;
+    preferred-height: 800px;
+    background: Theme.bg-secondary;
+
+    // ---- Navigation state ----
+    in-out property <int> active-view: 0;
+
+    // ---- Sidebar i18n labels ----
+    in property <string> sidebar-title:               "HEFESTO";
+    in property <string> sidebar-label-dashboard:      "Dashboard";
+    in property <string> sidebar-label-network:        "Network Explorer";
+    in property <string> sidebar-label-proc-explorer:  "Process Explorer";
+    in property <string> sidebar-label-proc-monitor:   "Process Monitor";
+    in property <string> sidebar-label-tools:          "Tools";
+    in property <string> sidebar-label-preferences:    "Preferences";
+    in property <string> sidebar-group-network:        "NETWORK";
+    in property <string> sidebar-group-system:         "SYSTEM";
+    in property <string> sidebar-group-utilities:      "UTILITIES";
+
+    // ---- Status bar ----
+    in property <string> status-text:  "Ready";
+    in property <string> clock-text:   "00:00:00";
+    in property <int> task-count:      0;
+
+    // ==========================================
+    // Forward all ContentArea properties
+    // ==========================================
+
+    // Dashboard
+    in property <string> dash-title:            "Dashboard";
+    in property <string> dash-total-ports:      "--";
+    in property <string> dash-total-processes:  "--";
+    in property <string> dash-system-cpu:       "--";
+    in property <string> dash-system-memory:    "--";
+    in property <string> dash-exposed-ports:    "--";
+    in property <string> dash-tcp-count:        "--";
+    in property <string> dash-udp-count:        "--";
+    in property <string> dash-label-total-ports:    "Total Listening";
+    in property <string> dash-label-total-procs:    "Total Processes";
+    in property <string> dash-label-sys-cpu:        "System CPU";
+    in property <string> dash-label-sys-mem:        "System Memory";
+    in property <string> dash-label-exposed:        "Exposed Ports";
+    in property <string> dash-label-tcp:            "TCP Ports";
+    in property <string> dash-label-udp:            "UDP Ports";
+    callback dash-refresh-requested();
+
+    // Network Explorer
+    in property <string> net-label-total-listening: "Total Listening";
+    in property <string> net-label-tcp-count:       "TCP Ports";
+    in property <string> net-label-udp-count:       "UDP Ports";
+    in property <string> net-label-port:            "Port";
+    in property <string> net-label-protocol:        "Protocol";
+    in property <string> net-label-address:         "Address";
+    in property <string> net-label-state:           "State";
+    in property <string> net-label-process:         "Process";
+    in property <string> net-label-pid:             "PID";
+    in property <string> net-label-security:        "Security";
+    in property <string> net-label-refresh:         "Refresh";
+    in property <string> net-label-export:          "Export CSV";
+    in property <string> net-total-listening:       "0";
+    in property <string> net-tcp-count:             "0";
+    in property <string> net-udp-count:             "0";
+    in property <[PortEntry]> net-ports:            [];
+    in-out property <int> net-selected-index:       -1;
+    callback net-refresh-requested();
+    callback net-search-changed(string);
+    callback net-protocol-filter-changed(string);
+    callback net-row-selected(int);
+    callback net-export-requested();
+
+    // Process Explorer
+    in property <string> proc-label-total:       "Total Processes";
+    in property <string> proc-label-sys-cpu:     "System CPU";
+    in property <string> proc-label-sys-mem:     "System Memory";
+    in property <string> proc-label-pid:         "PID";
+    in property <string> proc-label-process:     "Process";
+    in property <string> proc-label-state:       "State";
+    in property <string> proc-label-cpu:         "CPU %";
+    in property <string> proc-label-memory:      "Memory %";
+    in property <string> proc-label-rss:         "RSS";
+    in property <string> proc-label-threads:     "Threads";
+    in property <string> proc-label-user:        "User";
+    in property <string> proc-label-refresh:     "Refresh";
+    in property <string> proc-label-export:      "Export CSV";
+    in property <string> proc-label-sort-cpu:    "Sort by CPU";
+    in property <string> proc-label-sort-mem:    "Sort by Memory";
+    in property <string> proc-label-auto:        "Auto Refresh";
+    in property <string> proc-total-processes:   "0";
+    in property <string> proc-system-cpu:        "0.0%";
+    in property <string> proc-system-memory:     "0.0%";
+    in property <[ProcessEntry]> proc-processes: [];
+    in-out property <int> proc-selected-index:   -1;
+    in-out property <bool> proc-auto-refresh:    false;
+    callback proc-refresh-requested();
+    callback proc-search-changed(string);
+    callback proc-sort-changed(string);
+    callback proc-row-selected(int);
+    callback proc-row-double-clicked(int);
+    callback proc-export-requested();
+    callback proc-auto-refresh-toggled(bool);
+
+    // Process Monitor
+    in property <string> mon-label-start:       "Start";
+    in property <string> mon-label-stop:        "Stop";
+    in property <string> mon-label-search:      "Search";
+    in property <string> mon-label-kill:        "Kill Process";
+    in property <string> mon-label-state:       "State";
+    in property <string> mon-label-io-read:     "Read I/O";
+    in property <string> mon-label-io-write:    "Write I/O";
+    in property <string> mon-label-search-name: "Search by name...";
+    in property <string> mon-pid-display:       "--";
+    in property <string> mon-process-name:      "--";
+    in property <string> mon-thread-count:      "--";
+    in property <string> mon-uptime:            "--";
+    in property <string> mon-io-read:           "--";
+    in property <string> mon-io-write:          "--";
+    in property <string> mon-cpu-percent:       "--";
+    in property <string> mon-mem-percent:       "--";
+    in property <string> mon-state-text:        "--";
+    in property <int> mon-state-severity:       0;
+    in property <bool> mon-monitoring:          false;
+    in property <string> mon-error-message:     "";
+    in-out property <string> mon-pid-input:     "";
+    in-out property <string> mon-name-input:    "";
+    callback mon-start-by-pid();
+    callback mon-start-by-name();
+    callback mon-stop-monitoring();
+    callback mon-kill-process();
+
+    // Tools
+    in property <string> tools-label-base64:   "Base64";
+    in property <string> tools-label-json:     "JSON";
+    in property <string> tools-label-encode:   "Encode";
+    in property <string> tools-label-decode:   "Decode";
+    in property <string> tools-label-url-safe: "URL-safe";
+    in property <string> tools-label-mime:     "MIME";
+    in property <string> tools-label-format:   "Format";
+    in property <string> tools-label-compact:  "Compact";
+    in property <string> tools-label-validate: "Validate";
+    in property <string> tools-label-copy:     "Copy";
+    in property <string> tools-label-clear:    "Clear";
+    in property <string> tools-label-input:    "Input";
+    in property <string> tools-label-output:   "Output";
+    in property <string> tools-label-valid:    "Valid JSON";
+    in property <string> tools-label-invalid:  "Invalid JSON";
+    in-out property <int> tools-active-tab:    0;
+    in-out property <string> tools-b64-input:  "";
+    in-out property <string> tools-b64-output: "";
+    in property <string> tools-b64-error:      "";
+    in-out property <bool> tools-b64-url-safe: false;
+    in-out property <bool> tools-b64-mime:     false;
+    in-out property <string> tools-json-input: "";
+    in-out property <string> tools-json-output:"";
+    in property <int> tools-json-valid:        -1;
+    callback tools-b64-encode();
+    callback tools-b64-decode();
+    callback tools-b64-clear();
+    callback tools-b64-copy-output();
+    callback tools-json-format();
+    callback tools-json-compact();
+    callback tools-json-validate();
+    callback tools-json-clear();
+    callback tools-json-copy-output();
+
+    // Preferences
+    in property <string> pref-label-title:       "Preferences";
+    in property <string> pref-label-theme:       "Theme";
+    in property <string> pref-label-dark:        "Dark";
+    in property <string> pref-label-light:       "Light";
+    in property <string> pref-label-language:    "Language";
+    in property <string> pref-label-auto:        "Auto Refresh";
+    in property <string> pref-label-interval:    "Refresh Interval (seconds)";
+    in-out property <bool> pref-dark-mode:       true;
+    in-out property <string> pref-language:      "en";
+    in-out property <bool> pref-auto-refresh:    false;
+    in-out property <int> pref-refresh-interval: 5;
+    callback pref-dark-mode-toggled(bool);
+    callback pref-language-changed(string);
+    callback pref-auto-refresh-toggled(bool);
+    callback pref-refresh-interval-changed(int);
+
+    // ==========================================
+    // Layout: Sidebar | Content | StatusBar
+    // ==========================================
+    VerticalLayout {
+        HorizontalLayout {
+            vertical-stretch: 1;
+
+            SidePanel {
+                active-index: root.active-view;
+                title: root.sidebar-title;
+                label-dashboard: root.sidebar-label-dashboard;
+                label-network-explorer: root.sidebar-label-network;
+                label-process-explorer: root.sidebar-label-proc-explorer;
+                label-process-monitor: root.sidebar-label-proc-monitor;
+                label-tools: root.sidebar-label-tools;
+                label-preferences: root.sidebar-label-preferences;
+                group-network: root.sidebar-group-network;
+                group-system: root.sidebar-group-system;
+                group-utilities: root.sidebar-group-utilities;
+                navigate(idx) => { root.active-view = idx; }
+            }
+
+            ContentArea {
+                horizontal-stretch: 1;
+                active-view: root.active-view;
+
+                // Dashboard
+                dash-title: root.dash-title;
+                dash-total-ports: root.dash-total-ports;
+                dash-total-processes: root.dash-total-processes;
+                dash-system-cpu: root.dash-system-cpu;
+                dash-system-memory: root.dash-system-memory;
+                dash-exposed-ports: root.dash-exposed-ports;
+                dash-tcp-count: root.dash-tcp-count;
+                dash-udp-count: root.dash-udp-count;
+                dash-label-total-ports: root.dash-label-total-ports;
+                dash-label-total-procs: root.dash-label-total-procs;
+                dash-label-sys-cpu: root.dash-label-sys-cpu;
+                dash-label-sys-mem: root.dash-label-sys-mem;
+                dash-label-exposed: root.dash-label-exposed;
+                dash-label-tcp: root.dash-label-tcp;
+                dash-label-udp: root.dash-label-udp;
+                dash-refresh-requested => { root.dash-refresh-requested(); }
+
+                // Network Explorer
+                net-label-total-listening: root.net-label-total-listening;
+                net-label-tcp-count: root.net-label-tcp-count;
+                net-label-udp-count: root.net-label-udp-count;
+                net-label-port: root.net-label-port;
+                net-label-protocol: root.net-label-protocol;
+                net-label-address: root.net-label-address;
+                net-label-state: root.net-label-state;
+                net-label-process: root.net-label-process;
+                net-label-pid: root.net-label-pid;
+                net-label-security: root.net-label-security;
+                net-label-refresh: root.net-label-refresh;
+                net-label-export: root.net-label-export;
+                net-total-listening: root.net-total-listening;
+                net-tcp-count: root.net-tcp-count;
+                net-udp-count: root.net-udp-count;
+                net-ports: root.net-ports;
+                net-selected-index <=> root.net-selected-index;
+                net-refresh-requested => { root.net-refresh-requested(); }
+                net-search-changed(v) => { root.net-search-changed(v); }
+                net-protocol-filter-changed(v) => { root.net-protocol-filter-changed(v); }
+                net-row-selected(i) => { root.net-row-selected(i); }
+                net-export-requested => { root.net-export-requested(); }
+
+                // Process Explorer
+                proc-label-total: root.proc-label-total;
+                proc-label-sys-cpu: root.proc-label-sys-cpu;
+                proc-label-sys-mem: root.proc-label-sys-mem;
+                proc-label-pid: root.proc-label-pid;
+                proc-label-process: root.proc-label-process;
+                proc-label-state: root.proc-label-state;
+                proc-label-cpu: root.proc-label-cpu;
+                proc-label-memory: root.proc-label-memory;
+                proc-label-rss: root.proc-label-rss;
+                proc-label-threads: root.proc-label-threads;
+                proc-label-user: root.proc-label-user;
+                proc-label-refresh: root.proc-label-refresh;
+                proc-label-export: root.proc-label-export;
+                proc-label-sort-cpu: root.proc-label-sort-cpu;
+                proc-label-sort-mem: root.proc-label-sort-mem;
+                proc-label-auto: root.proc-label-auto;
+                proc-total-processes: root.proc-total-processes;
+                proc-system-cpu: root.proc-system-cpu;
+                proc-system-memory: root.proc-system-memory;
+                proc-processes: root.proc-processes;
+                proc-selected-index <=> root.proc-selected-index;
+                proc-auto-refresh <=> root.proc-auto-refresh;
+                proc-refresh-requested => { root.proc-refresh-requested(); }
+                proc-search-changed(v) => { root.proc-search-changed(v); }
+                proc-sort-changed(v) => { root.proc-sort-changed(v); }
+                proc-row-selected(i) => { root.proc-row-selected(i); }
+                proc-row-double-clicked(i) => { root.proc-row-double-clicked(i); }
+                proc-export-requested => { root.proc-export-requested(); }
+                proc-auto-refresh-toggled(v) => { root.proc-auto-refresh-toggled(v); }
+
+                // Process Monitor
+                mon-label-start: root.mon-label-start;
+                mon-label-stop: root.mon-label-stop;
+                mon-label-search: root.mon-label-search;
+                mon-label-kill: root.mon-label-kill;
+                mon-label-state: root.mon-label-state;
+                mon-label-io-read: root.mon-label-io-read;
+                mon-label-io-write: root.mon-label-io-write;
+                mon-label-search-name: root.mon-label-search-name;
+                mon-pid-display: root.mon-pid-display;
+                mon-process-name: root.mon-process-name;
+                mon-thread-count: root.mon-thread-count;
+                mon-uptime: root.mon-uptime;
+                mon-io-read: root.mon-io-read;
+                mon-io-write: root.mon-io-write;
+                mon-cpu-percent: root.mon-cpu-percent;
+                mon-mem-percent: root.mon-mem-percent;
+                mon-state-text: root.mon-state-text;
+                mon-state-severity: root.mon-state-severity;
+                mon-monitoring: root.mon-monitoring;
+                mon-error-message: root.mon-error-message;
+                mon-pid-input <=> root.mon-pid-input;
+                mon-name-input <=> root.mon-name-input;
+                mon-start-by-pid => { root.mon-start-by-pid(); }
+                mon-start-by-name => { root.mon-start-by-name(); }
+                mon-stop-monitoring => { root.mon-stop-monitoring(); }
+                mon-kill-process => { root.mon-kill-process(); }
+
+                // Tools
+                tools-label-base64: root.tools-label-base64;
+                tools-label-json: root.tools-label-json;
+                tools-label-encode: root.tools-label-encode;
+                tools-label-decode: root.tools-label-decode;
+                tools-label-url-safe: root.tools-label-url-safe;
+                tools-label-mime: root.tools-label-mime;
+                tools-label-format: root.tools-label-format;
+                tools-label-compact: root.tools-label-compact;
+                tools-label-validate: root.tools-label-validate;
+                tools-label-copy: root.tools-label-copy;
+                tools-label-clear: root.tools-label-clear;
+                tools-label-input: root.tools-label-input;
+                tools-label-output: root.tools-label-output;
+                tools-label-valid: root.tools-label-valid;
+                tools-label-invalid: root.tools-label-invalid;
+                tools-active-tab <=> root.tools-active-tab;
+                tools-b64-input <=> root.tools-b64-input;
+                tools-b64-output <=> root.tools-b64-output;
+                tools-b64-error: root.tools-b64-error;
+                tools-b64-url-safe <=> root.tools-b64-url-safe;
+                tools-b64-mime <=> root.tools-b64-mime;
+                tools-json-input <=> root.tools-json-input;
+                tools-json-output <=> root.tools-json-output;
+                tools-json-valid: root.tools-json-valid;
+                tools-b64-encode => { root.tools-b64-encode(); }
+                tools-b64-decode => { root.tools-b64-decode(); }
+                tools-b64-clear => { root.tools-b64-clear(); }
+                tools-b64-copy-output => { root.tools-b64-copy-output(); }
+                tools-json-format => { root.tools-json-format(); }
+                tools-json-compact => { root.tools-json-compact(); }
+                tools-json-validate => { root.tools-json-validate(); }
+                tools-json-clear => { root.tools-json-clear(); }
+                tools-json-copy-output => { root.tools-json-copy-output(); }
+
+                // Preferences
+                pref-label-title: root.pref-label-title;
+                pref-label-theme: root.pref-label-theme;
+                pref-label-dark: root.pref-label-dark;
+                pref-label-light: root.pref-label-light;
+                pref-label-language: root.pref-label-language;
+                pref-label-auto: root.pref-label-auto;
+                pref-label-interval: root.pref-label-interval;
+                pref-dark-mode <=> root.pref-dark-mode;
+                pref-language <=> root.pref-language;
+                pref-auto-refresh <=> root.pref-auto-refresh;
+                pref-refresh-interval <=> root.pref-refresh-interval;
+                pref-dark-mode-toggled(v) => { root.pref-dark-mode-toggled(v); }
+                pref-language-changed(v) => { root.pref-language-changed(v); }
+                pref-auto-refresh-toggled(v) => { root.pref-auto-refresh-toggled(v); }
+                pref-refresh-interval-changed(v) => { root.pref-refresh-interval-changed(v); }
+            }
+        }
+
+        StatusBar {
+            status-text: root.status-text;
+            clock-text: root.clock-text;
+            task-count: root.task-count;
+        }
+    }
+}
