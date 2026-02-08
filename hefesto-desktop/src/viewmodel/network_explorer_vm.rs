@@ -1,8 +1,9 @@
 //! Network Explorer view model.
 //!
-//! Manages port binding data, filtering, and search for the
-//! network explorer table view.
+//! Manages port binding data, filtering, search, and auto-refresh
+//! for the network explorer table view.
 
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 
 use hefesto_domain::portinfo::port_binding::{ConnectionState, PortBinding, Protocol};
@@ -112,12 +113,37 @@ fn update_ui(weak: &slint::Weak<AppWindow>, state: &NetworkState) {
     });
 }
 
+/// Performs a refresh of port data and updates the UI.
+fn do_refresh(
+    weak: slint::Weak<AppWindow>,
+    pp: Arc<dyn PortParser>,
+    state: Arc<Mutex<NetworkState>>,
+) {
+    tokio::spawn(async move {
+        let bindings = tokio::task::spawn_blocking(move || {
+            pp.find_all(true, true).unwrap_or_default()
+        })
+        .await
+        .unwrap_or_default();
+
+        {
+            let mut s = state.lock().unwrap();
+            s.all_bindings = bindings;
+        }
+
+        let s = state.lock().unwrap();
+        update_ui(&weak, &s);
+    });
+}
+
 /// Wires network explorer callbacks and triggers initial data load.
 pub fn setup_network_explorer(
     window: &AppWindow,
     port_parser: Arc<dyn PortParser>,
 ) {
     let state = Arc::new(Mutex::new(NetworkState::new()));
+    let auto_refresh_active = Arc::new(AtomicBool::new(false));
+    let refresh_interval_secs = Arc::new(AtomicU64::new(10));
 
     // Refresh callback
     {
@@ -126,25 +152,7 @@ pub fn setup_network_explorer(
         let state = Arc::clone(&state);
 
         window.on_net_refresh_requested(move || {
-            let weak = weak.clone();
-            let pp = Arc::clone(&pp);
-            let state = Arc::clone(&state);
-
-            tokio::spawn(async move {
-                let bindings = tokio::task::spawn_blocking(move || {
-                    pp.find_all(true, true).unwrap_or_default()
-                })
-                .await
-                .unwrap_or_default();
-
-                {
-                    let mut s = state.lock().unwrap();
-                    s.all_bindings = bindings;
-                }
-
-                let s = state.lock().unwrap();
-                update_ui(&weak, &s);
-            });
+            do_refresh(weak.clone(), Arc::clone(&pp), Arc::clone(&state));
         });
     }
 
@@ -183,6 +191,71 @@ pub fn setup_network_explorer(
     {
         window.on_net_export_requested(move || {
             tracing::info!("Network CSV export requested");
+        });
+    }
+
+    // Auto-refresh toggle
+    {
+        let weak = window.as_weak();
+        let pp = Arc::clone(&port_parser);
+        let state = Arc::clone(&state);
+        let auto_refresh_active = Arc::clone(&auto_refresh_active);
+        let refresh_interval_secs = Arc::clone(&refresh_interval_secs);
+
+        window.on_net_auto_refresh_toggled(move |enabled| {
+            tracing::info!("Network auto-refresh toggled: {}", enabled);
+            auto_refresh_active.store(enabled, Ordering::SeqCst);
+
+            if enabled {
+                let weak = weak.clone();
+                let pp = Arc::clone(&pp);
+                let state = Arc::clone(&state);
+                let auto_refresh_active = Arc::clone(&auto_refresh_active);
+                let refresh_interval_secs = Arc::clone(&refresh_interval_secs);
+
+                tokio::spawn(async move {
+                    loop {
+                        if !auto_refresh_active.load(Ordering::SeqCst) {
+                            break;
+                        }
+
+                        let interval =
+                            refresh_interval_secs.load(Ordering::SeqCst);
+                        tokio::time::sleep(std::time::Duration::from_secs(interval)).await;
+
+                        if !auto_refresh_active.load(Ordering::SeqCst) {
+                            break;
+                        }
+
+                        let pp_clone = Arc::clone(&pp);
+                        let bindings = tokio::task::spawn_blocking(move || {
+                            pp_clone.find_all(true, true).unwrap_or_default()
+                        })
+                        .await
+                        .unwrap_or_default();
+
+                        {
+                            let mut s = state.lock().unwrap();
+                            s.all_bindings = bindings;
+                        }
+
+                        let s = state.lock().unwrap();
+                        update_ui(&weak, &s);
+                    }
+                    tracing::info!("Network auto-refresh loop stopped");
+                });
+            }
+        });
+    }
+
+    // Refresh interval change
+    {
+        let refresh_interval_secs = Arc::clone(&refresh_interval_secs);
+
+        window.on_net_refresh_interval_changed(move |interval| {
+            let interval = interval.max(1) as u64;
+            tracing::info!("Network refresh interval changed to: {}s", interval);
+            refresh_interval_secs.store(interval, Ordering::SeqCst);
         });
     }
 

@@ -1,4 +1,4 @@
-import { ScrollView, Button, ComboBox, ListView } from "std-widgets.slint";
+import { ScrollView, Button, ComboBox, ListView, CheckBox } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { KpiCard } from "../components/kpi_card.slint";
 import { SearchField } from "../components/search_field.slint";
@@ -29,6 +29,7 @@ export component NetworkExplorerView inherits Rectangle {
     in property <string> label-security:        "Security";
     in property <string> label-refresh:         "Refresh";
     in property <string> label-export:          "Export CSV";
+    in property <string> label-auto-refresh:    "Auto Refresh";
 
     // KPI values
     in property <string> total-listening: "0";
@@ -38,12 +39,16 @@ export component NetworkExplorerView inherits Rectangle {
     // Table data
     in property <[PortEntry]> ports: [];
     in property <int> selected-index: -1;
+    in-out property <bool> auto-refresh: false;
+    in-out property <int> refresh-interval: 10;
 
     callback refresh-requested();
     callback search-changed(string);
     callback protocol-filter-changed(string);
     callback row-selected(int);
     callback export-requested();
+    callback auto-refresh-toggled(bool);
+    callback refresh-interval-changed(int);
 
     background: Theme.bg-secondary;
 
@@ -97,6 +102,48 @@ export component NetworkExplorerView inherits Rectangle {
             Button {
                 text: root.label-refresh;
                 clicked => { root.refresh-requested(); }
+            }
+
+            // Vertical separator
+            Rectangle {
+                width: 1px;
+                height: 28px;
+                background: Theme.border;
+            }
+
+            Button {
+                text: root.label-auto-refresh;
+                checkable: true;
+                checked: root.auto-refresh;
+                clicked => {
+                    root.auto-refresh = !root.auto-refresh;
+                    root.auto-refresh-toggled(root.auto-refresh);
+                }
+            }
+
+            ComboBox {
+                width: 80px;
+                model: ["5s", "10s", "30s", "60s"];
+                current-value: root.refresh-interval == 5 ? "5s"
+                             : root.refresh-interval == 10 ? "10s"
+                             : root.refresh-interval == 30 ? "30s"
+                             : "60s";
+                enabled: root.auto-refresh;
+                selected(value) => {
+                    if (value == "5s") {
+                        root.refresh-interval = 5;
+                        root.refresh-interval-changed(5);
+                    } else if (value == "10s") {
+                        root.refresh-interval = 10;
+                        root.refresh-interval-changed(10);
+                    } else if (value == "30s") {
+                        root.refresh-interval = 30;
+                        root.refresh-interval-changed(30);
+                    } else {
+                        root.refresh-interval = 60;
+                        root.refresh-interval-changed(60);
+                    }
+                }
             }
 
             Button {

@@ -34,6 +34,7 @@ export component ProcessExplorerView inherits Rectangle {
     in property <string> label-sort-cpu:         "Sort by CPU";
     in property <string> label-sort-memory:      "Sort by Memory";
     in property <string> label-auto-refresh:     "Auto Refresh";
+    in property <string> label-terminate:       "Terminate Process";
 
     // KPI values
     in property <string> total-processes: "0";
@@ -52,6 +53,7 @@ export component ProcessExplorerView inherits Rectangle {
     callback row-double-clicked(int);
     callback export-requested();
     callback auto-refresh-toggled(bool);
+    callback kill-requested(int);
 
     background: Theme.bg-secondary;
 
@@ -115,6 +117,19 @@ export component ProcessExplorerView inherits Rectangle {
             Button {
                 text: root.label-refresh;
                 clicked => { root.refresh-requested(); }
+            }
+
+            // Vertical separator
+            Rectangle {
+                width: 1px;
+                height: 28px;
+                background: Theme.border;
+            }
+
+            Button {
+                text: root.label-terminate;
+                enabled: root.selected-index >= 0;
+                clicked => { root.kill-requested(root.selected-index); }
             }
 
             Button {

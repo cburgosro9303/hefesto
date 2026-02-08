@@ -53,6 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     viewmodel::process_explorer_vm::setup_process_explorer(
         &window,
         factory.process_sampler(),
+        factory.port_parser(),
     );
 
     viewmodel::process_monitor_vm::setup_process_monitor(

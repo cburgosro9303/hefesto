@@ -2,9 +2,9 @@ import { Theme } from "theme.slint";
 import { SidePanel } from "side_panel.slint";
 import { StatusBar } from "status_bar.slint";
 import { ContentArea } from "content_area.slint";
-import { PortEntry, ProcessEntry } from "content_area.slint";
+import { PortEntry, ProcessEntry, GraphPoint } from "content_area.slint";
 
-export { Theme, PortEntry, ProcessEntry }
+export { Theme, PortEntry, ProcessEntry, GraphPoint }
 
 export component AppWindow inherits Window {
     title: "HEFESTO Desktop";
@@ -72,13 +72,18 @@ export component AppWindow inherits Window {
     in property <string> net-total-listening:       "0";
     in property <string> net-tcp-count:             "0";
     in property <string> net-udp-count:             "0";
+    in property <string> net-label-auto-refresh:   "Auto Refresh";
     in property <[PortEntry]> net-ports:            [];
     in-out property <int> net-selected-index:       -1;
+    in-out property <bool> net-auto-refresh:        false;
+    in-out property <int> net-refresh-interval:     10;
     callback net-refresh-requested();
     callback net-search-changed(string);
     callback net-protocol-filter-changed(string);
     callback net-row-selected(int);
     callback net-export-requested();
+    callback net-auto-refresh-toggled(bool);
+    callback net-refresh-interval-changed(int);
 
     // Process Explorer
     in property <string> proc-label-total:       "Total Processes";
@@ -100,6 +105,7 @@ export component AppWindow inherits Window {
     in property <string> proc-total-processes:   "0";
     in property <string> proc-system-cpu:        "0.0%";
     in property <string> proc-system-memory:     "0.0%";
+    in property <string> proc-label-terminate:   "Terminate Process";
     in property <[ProcessEntry]> proc-processes: [];
     in-out property <int> proc-selected-index:   -1;
     in-out property <bool> proc-auto-refresh:    false;
@@ -110,6 +116,7 @@ export component AppWindow inherits Window {
     callback proc-row-double-clicked(int);
     callback proc-export-requested();
     callback proc-auto-refresh-toggled(bool);
+    callback proc-kill-requested(int);
 
     // Process Monitor
     in property <string> mon-label-start:       "Start";
@@ -120,6 +127,8 @@ export component AppWindow inherits Window {
     in property <string> mon-label-io-read:     "Read I/O";
     in property <string> mon-label-io-write:    "Write I/O";
     in property <string> mon-label-search-name: "Search by name...";
+    in property <string> mon-label-cpu-history: "CPU History";
+    in property <string> mon-label-mem-history: "Memory History";
     in property <string> mon-pid-display:       "--";
     in property <string> mon-process-name:      "--";
     in property <string> mon-thread-count:      "--";
@@ -132,6 +141,8 @@ export component AppWindow inherits Window {
     in property <int> mon-state-severity:       0;
     in property <bool> mon-monitoring:          false;
     in property <string> mon-error-message:     "";
+    in property <[GraphPoint]> mon-cpu-history: [];
+    in property <[GraphPoint]> mon-mem-history: [];
     in-out property <string> mon-pid-input:     "";
     in-out property <string> mon-name-input:    "";
     callback mon-start-by-pid();
@@ -252,12 +263,17 @@ export component AppWindow inherits Window {
                 net-tcp-count: root.net-tcp-count;
                 net-udp-count: root.net-udp-count;
                 net-ports: root.net-ports;
+                net-label-auto-refresh: root.net-label-auto-refresh;
                 net-selected-index <=> root.net-selected-index;
+                net-auto-refresh <=> root.net-auto-refresh;
+                net-refresh-interval <=> root.net-refresh-interval;
                 net-refresh-requested => { root.net-refresh-requested(); }
                 net-search-changed(v) => { root.net-search-changed(v); }
                 net-protocol-filter-changed(v) => { root.net-protocol-filter-changed(v); }
                 net-row-selected(i) => { root.net-row-selected(i); }
                 net-export-requested => { root.net-export-requested(); }
+                net-auto-refresh-toggled(v) => { root.net-auto-refresh-toggled(v); }
+                net-refresh-interval-changed(v) => { root.net-refresh-interval-changed(v); }
 
                 // Process Explorer
                 proc-label-total: root.proc-label-total;
@@ -276,6 +292,7 @@ export component AppWindow inherits Window {
                 proc-label-sort-cpu: root.proc-label-sort-cpu;
                 proc-label-sort-mem: root.proc-label-sort-mem;
                 proc-label-auto: root.proc-label-auto;
+                proc-label-terminate: root.proc-label-terminate;
                 proc-total-processes: root.proc-total-processes;
                 proc-system-cpu: root.proc-system-cpu;
                 proc-system-memory: root.proc-system-memory;
@@ -289,6 +306,7 @@ export component AppWindow inherits Window {
                 proc-row-double-clicked(i) => { root.proc-row-double-clicked(i); }
                 proc-export-requested => { root.proc-export-requested(); }
                 proc-auto-refresh-toggled(v) => { root.proc-auto-refresh-toggled(v); }
+                proc-kill-requested(i) => { root.proc-kill-requested(i); }
 
                 // Process Monitor
                 mon-label-start: root.mon-label-start;
@@ -299,6 +317,8 @@ export component AppWindow inherits Window {
                 mon-label-io-read: root.mon-label-io-read;
                 mon-label-io-write: root.mon-label-io-write;
                 mon-label-search-name: root.mon-label-search-name;
+                mon-label-cpu-history: root.mon-label-cpu-history;
+                mon-label-mem-history: root.mon-label-mem-history;
                 mon-pid-display: root.mon-pid-display;
                 mon-process-name: root.mon-process-name;
                 mon-thread-count: root.mon-thread-count;
@@ -311,6 +331,8 @@ export component AppWindow inherits Window {
                 mon-state-severity: root.mon-state-severity;
                 mon-monitoring: root.mon-monitoring;
                 mon-error-message: root.mon-error-message;
+                mon-cpu-history: root.mon-cpu-history;
+                mon-mem-history: root.mon-mem-history;
                 mon-pid-input <=> root.mon-pid-input;
                 mon-name-input <=> root.mon-name-input;
                 mon-start-by-pid => { root.mon-start-by-pid(); }
