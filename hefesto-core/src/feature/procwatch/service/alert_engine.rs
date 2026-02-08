@@ -122,10 +122,7 @@ impl AlertEngine {
     fn add_to_history(&mut self, sample: &ProcessSample) {
         let now = Instant::now();
 
-        let history = self
-            .sample_history
-            .entry(sample.pid)
-            .or_insert_with(VecDeque::new);
+        let history = self.sample_history.entry(sample.pid).or_default();
 
         history.push_back(TimestampedSample {
             sample: sample.clone(),
@@ -247,10 +244,10 @@ impl AlertEngine {
 
 /// Finds the oldest entry in `history` whose timestamp is at or after `cutoff`.
 /// Falls back to the very first entry if no entry meets the cutoff.
-fn find_oldest_after<'a>(
-    history: &'a VecDeque<TimestampedSample>,
+fn find_oldest_after(
+    history: &VecDeque<TimestampedSample>,
     cutoff: Instant,
-) -> Option<&'a TimestampedSample> {
+) -> Option<&TimestampedSample> {
     for ts in history.iter() {
         if ts.timestamp >= cutoff {
             return Some(ts);
@@ -337,11 +334,11 @@ mod tests {
 
         // Condition met.
         let high = make_sample(1, 90.0, 0);
-        engine.evaluate(&high, &[rule.clone()]);
+        engine.evaluate(&high, std::slice::from_ref(&rule));
 
         // Condition breaks.
         let low = make_sample(1, 50.0, 0);
-        engine.evaluate(&low, &[rule.clone()]);
+        engine.evaluate(&low, std::slice::from_ref(&rule));
 
         // Even after sleeping, condition should not fire because it was reset.
         thread::sleep(Duration::from_millis(20));
@@ -377,8 +374,8 @@ mod tests {
             ThresholdUnit::Percent,
         );
 
-        engine.evaluate(&make_sample(1, 90.0, 0), &[rule.clone()]);
-        engine.evaluate(&make_sample(2, 90.0, 0), &[rule]);
+        engine.evaluate(&make_sample(1, 90.0, 0), std::slice::from_ref(&rule));
+        engine.evaluate(&make_sample(2, 90.0, 0), std::slice::from_ref(&rule));
 
         engine.clear_all_history();
         assert!(engine.sample_history.is_empty());

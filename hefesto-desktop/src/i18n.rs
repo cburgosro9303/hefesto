@@ -54,6 +54,7 @@ impl I18nService {
     }
 
     /// Returns the current language.
+    #[allow(dead_code)]
     pub fn language(&self) -> Language {
         self.current
     }
@@ -76,6 +77,7 @@ impl I18nService {
     }
 
     /// Translates a key and replaces {0}, {1}, ... with the provided arguments.
+    #[allow(dead_code)]
     pub fn t_args(&self, key: &str, args: &[&str]) -> String {
         let mut result = self.t(key);
         for (i, arg) in args.iter().enumerate() {
@@ -86,6 +88,7 @@ impl I18nService {
     }
 
     /// Returns all translations as a reference.
+    #[allow(dead_code)]
     pub fn translations(&self) -> &HashMap<String, String> {
         &self.translations
     }

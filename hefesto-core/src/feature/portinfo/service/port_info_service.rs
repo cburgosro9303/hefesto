@@ -102,7 +102,7 @@ impl PortInfoService {
     /// Returns a list of available ports starting from the given port.
     pub fn find_free_ports(&self, start_port: u16, count: usize) -> Vec<u16> {
         let mut free_ports = Vec::new();
-        let max_port = start_port.saturating_add(1000).min(65535);
+        let max_port = start_port.saturating_add(1000);
         let mut port = start_port;
 
         while free_ports.len() < count && port <= max_port {

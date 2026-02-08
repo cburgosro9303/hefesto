@@ -97,7 +97,7 @@ impl SslInfo {
     /// Checks if certificate expires soon (within 30 days).
     pub fn expires_soon(&self) -> bool {
         let days = self.days_until_expiry();
-        days >= 0 && days <= 30
+        (0..=30).contains(&days)
     }
 }
 

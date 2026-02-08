@@ -236,8 +236,6 @@ impl PortInfoCommand {
             Box::new(JsonFormatter::new())
         } else if parsed.get_boolean("csv") {
             Box::new(CsvFormatter::new())
-        } else if parsed.get_boolean("table") {
-            Box::new(TableFormatter::new(true))
         } else {
             Box::new(TableFormatter::new(true))
         }
@@ -504,6 +502,7 @@ impl PortInfoCommand {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn handle_single_port(
         &self,
         ctx: &ExecutionContext,

@@ -195,6 +195,7 @@ impl Command for ProcWatchCommand {
 //  Mode handlers
 // ════════════════════════════════════════════════════════════════════════
 
+#[allow(clippy::too_many_arguments)]
 fn handle_top_mode(
     output: &dyn OutputPort,
     service: &ProcessMonitorService,
@@ -260,6 +261,7 @@ fn handle_top_mode(
     CommandResult::success()
 }
 
+#[allow(clippy::too_many_arguments)]
 fn handle_pid_mode(
     output: &dyn OutputPort,
     service: &mut ProcessMonitorService,
@@ -616,7 +618,7 @@ fn format_top_json(samples: &[ProcessSample]) -> String {
 fn format_top_jsonl(samples: &[ProcessSample]) -> String {
     samples
         .iter()
-        .map(|s| format_sample_jsonl(s))
+        .map(format_sample_jsonl)
         .collect::<Vec<_>>()
         .join("\n")
 }

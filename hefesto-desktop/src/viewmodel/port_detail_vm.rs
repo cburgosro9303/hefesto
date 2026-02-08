@@ -9,6 +9,7 @@ use hefesto_domain::portinfo::port_binding::PortBinding;
 
 /// Holds detailed information about a selected port.
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct PortDetail {
     pub port: u16,
     pub protocol: String,
@@ -22,6 +23,7 @@ pub struct PortDetail {
     pub is_exposed: bool,
 }
 
+#[allow(dead_code)]
 impl PortDetail {
     /// Creates a PortDetail from a PortBinding.
     pub fn from_binding(binding: &PortBinding) -> Self {

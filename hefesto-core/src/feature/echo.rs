@@ -114,7 +114,7 @@ impl Command for EchoCommand {
 
         // Handle repetition
         let mut repeat = parsed.get_flag_as_int_or("repeat", 1);
-        repeat = parsed.get_flag_as_int_or("r", repeat).max(1).min(100);
+        repeat = parsed.get_flag_as_int_or("r", repeat).clamp(1, 100);
 
         let separator = if parsed.has_flag("s") {
             parsed.get_flag_or("s", " ")

@@ -16,13 +16,8 @@ impl InteractiveMenu {
             .println("Type 'help' for available commands, 'exit' to quit.");
         ctx.output.print_separator();
 
-        loop {
-            let input = match ctx.input.read_line("hefesto> ") {
-                Some(line) => line,
-                None => break,
-            };
-
-            let input = input.trim();
+        while let Some(line) = ctx.input.read_line("hefesto> ") {
+            let input = line.trim();
             if input.is_empty() {
                 continue;
             }

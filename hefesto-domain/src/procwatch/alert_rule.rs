@@ -51,7 +51,7 @@ impl MetricType {
         }
     }
 
-    pub fn from_str(s: &str) -> Result<Self, AlertRuleError> {
+    pub fn parse(s: &str) -> Result<Self, AlertRuleError> {
         match s.to_lowercase().as_str() {
             "cpu" | "cpu%" => Ok(MetricType::Cpu),
             "rss" | "mem" | "memory" => Ok(MetricType::Rss),
@@ -99,7 +99,7 @@ impl ComparisonOperator {
         }
     }
 
-    pub fn from_str(s: &str) -> Result<Self, AlertRuleError> {
+    pub fn parse(s: &str) -> Result<Self, AlertRuleError> {
         match s {
             ">" => Ok(ComparisonOperator::Greater),
             ">=" => Ok(ComparisonOperator::GreaterEq),
@@ -143,7 +143,7 @@ impl ThresholdUnit {
         value * self.multiplier() as f64
     }
 
-    pub fn from_str(s: &str) -> Self {
+    pub fn parse(s: &str) -> Self {
         if s.is_empty() {
             return ThresholdUnit::None;
         }
@@ -175,7 +175,7 @@ impl WindowCondition {
         }
     }
 
-    pub fn from_str(s: &str) -> Result<Self, AlertRuleError> {
+    pub fn parse(s: &str) -> Result<Self, AlertRuleError> {
         match s.to_lowercase().as_str() {
             "for" => Ok(WindowCondition::For),
             "increasing" => Ok(WindowCondition::Increasing),
@@ -351,20 +351,14 @@ mod tests {
 
     #[test]
     fn test_metric_type_from_str() {
-        assert_eq!(MetricType::from_str("cpu").unwrap(), MetricType::Cpu);
-        assert_eq!(MetricType::from_str("CPU%").unwrap(), MetricType::Cpu);
-        assert_eq!(MetricType::from_str("rss").unwrap(), MetricType::Rss);
-        assert_eq!(MetricType::from_str("mem").unwrap(), MetricType::Rss);
-        assert_eq!(MetricType::from_str("memory").unwrap(), MetricType::Rss);
-        assert_eq!(
-            MetricType::from_str("virtual").unwrap(),
-            MetricType::Virtual
-        );
-        assert_eq!(
-            MetricType::from_str("threads").unwrap(),
-            MetricType::Threads
-        );
-        assert!(MetricType::from_str("invalid").is_err());
+        assert_eq!(MetricType::parse("cpu").unwrap(), MetricType::Cpu);
+        assert_eq!(MetricType::parse("CPU%").unwrap(), MetricType::Cpu);
+        assert_eq!(MetricType::parse("rss").unwrap(), MetricType::Rss);
+        assert_eq!(MetricType::parse("mem").unwrap(), MetricType::Rss);
+        assert_eq!(MetricType::parse("memory").unwrap(), MetricType::Rss);
+        assert_eq!(MetricType::parse("virtual").unwrap(), MetricType::Virtual);
+        assert_eq!(MetricType::parse("threads").unwrap(), MetricType::Threads);
+        assert!(MetricType::parse("invalid").is_err());
     }
 
     #[test]

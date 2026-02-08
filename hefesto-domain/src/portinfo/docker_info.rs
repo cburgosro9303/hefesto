@@ -18,11 +18,11 @@ impl PortMapping {
             format!("{}:", self.host_ip)
         };
         format!(
-            "{}{}->{}{}",
+            "{}{}->{}/{}",
             host,
             self.host_port,
             self.container_port,
-            format!("/{}", self.protocol.to_lowercase())
+            self.protocol.to_lowercase()
         )
     }
 }

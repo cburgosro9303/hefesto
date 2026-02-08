@@ -63,10 +63,10 @@ impl AlertParser {
         let duration_value_str = captures.get(6).map(|m| m.as_str());
         let duration_unit_str = captures.get(7).map(|m| m.as_str());
 
-        let metric = MetricType::from_str(metric_str)
+        let metric = MetricType::parse(metric_str)
             .map_err(|_| AlertParserError::UnknownMetric(metric_str.to_string()))?;
 
-        let operator = ComparisonOperator::from_str(operator_str)
+        let operator = ComparisonOperator::parse(operator_str)
             .map_err(|_| AlertParserError::UnknownOperator(operator_str.to_string()))?;
 
         let threshold: f64 = threshold_str
@@ -82,7 +82,7 @@ impl AlertParser {
             (condition_str, duration_value_str, duration_unit_str)
         {
             window_condition = Some(
-                WindowCondition::from_str(cond_str)
+                WindowCondition::parse(cond_str)
                     .map_err(|_| AlertParserError::UnknownCondition(cond_str.to_string()))?,
             );
             window = Some(parse_duration(dur_val_str, dur_unit_str)?);
@@ -194,7 +194,7 @@ pub enum AlertParserError {
 /// default based on the metric type when no unit is provided.
 fn parse_unit(unit_str: Option<&str>, metric: &MetricType) -> ThresholdUnit {
     match unit_str {
-        Some(u) if !u.is_empty() => ThresholdUnit::from_str(u),
+        Some(u) if !u.is_empty() => ThresholdUnit::parse(u),
         _ => match metric {
             MetricType::Cpu => ThresholdUnit::Percent,
             MetricType::Rss

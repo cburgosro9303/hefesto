@@ -261,8 +261,8 @@ impl HealthCheckService {
             Ok(tls_stream) => {
                 let elapsed = start.elapsed().as_millis() as u64;
 
-                if let Ok(cert) = tls_stream.peer_certificate() {
-                    if let Some(cert) = cert {
+                if let Ok(Some(cert)) = tls_stream.peer_certificate() {
+                    {
                         let der = cert.to_der().unwrap_or_default();
                         let ssl_info = parse_certificate_info(&der, &tls_stream);
 
