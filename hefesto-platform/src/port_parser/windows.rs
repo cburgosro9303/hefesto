@@ -185,7 +185,8 @@ impl PortParser for WindowsPortParser {
     }
 
     fn kill_process(&self, pid: u32, force: bool) -> Result<bool> {
-        let mut args = vec!["/PID", &pid.to_string()];
+        let pid_str = pid.to_string();
+        let mut args = vec!["/PID", &pid_str];
         let force_flag;
         if force {
             force_flag = "/F".to_string();
