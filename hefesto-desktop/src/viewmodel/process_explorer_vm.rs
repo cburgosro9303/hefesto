@@ -6,6 +6,7 @@
 use std::sync::{Arc, Mutex};
 
 use hefesto_domain::procwatch::process_sample::{ProcessSample, ProcessState};
+use hefesto_platform::port_parser::PortParser;
 use hefesto_platform::process_sampler::ProcessSampler;
 use slint::{ComponentHandle, ModelRc, SharedString, VecModel};
 
@@ -137,6 +138,7 @@ fn update_ui(weak: &slint::Weak<AppWindow>, state: &ProcessState_) {
 pub fn setup_process_explorer(
     window: &AppWindow,
     process_sampler: Arc<dyn ProcessSampler>,
+    port_parser: Arc<dyn PortParser>,
 ) {
     let state = Arc::new(Mutex::new(ProcessState_::new()));
 
@@ -231,6 +233,65 @@ pub fn setup_process_explorer(
     {
         window.on_proc_auto_refresh_toggled(move |enabled| {
             tracing::info!("Process auto-refresh toggled: {}", enabled);
+        });
+    }
+
+    // Kill process callback
+    {
+        let weak = window.as_weak();
+        let pp = Arc::clone(&port_parser);
+        let ps_kill = Arc::clone(&process_sampler);
+        let state_kill = Arc::clone(&state);
+
+        window.on_proc_kill_requested(move |idx| {
+            let pid_to_kill: Option<u32> = {
+                let s = state_kill.lock().unwrap();
+                let filtered = s.filtered_sorted();
+                filtered
+                    .get(idx as usize)
+                    .map(|p| p.pid)
+            };
+
+            if let Some(pid) = pid_to_kill {
+                tracing::info!("Terminate process requested for PID: {}", pid);
+                let pp = Arc::clone(&pp);
+                let ps = Arc::clone(&ps_kill);
+                let weak = weak.clone();
+                let state = Arc::clone(&state_kill);
+
+                tokio::spawn(async move {
+                    let pp_clone = Arc::clone(&pp);
+                    let result = tokio::task::spawn_blocking(move || {
+                        pp_clone.kill_process(pid, false)
+                    })
+                    .await;
+
+                    match result {
+                        Ok(Ok(true)) => {
+                            tracing::info!("Process {} terminated successfully", pid);
+                        }
+                        _ => {
+                            tracing::warn!("Failed to terminate process {}", pid);
+                        }
+                    }
+
+                    // Refresh the process list after kill
+                    let ps_clone = Arc::clone(&ps);
+                    let procs = tokio::task::spawn_blocking(move || {
+                        ps_clone.get_all_processes().unwrap_or_default()
+                    })
+                    .await
+                    .unwrap_or_default();
+
+                    {
+                        let mut s = state.lock().unwrap();
+                        s.all_processes = procs;
+                    }
+
+                    let s = state.lock().unwrap();
+                    update_ui(&weak, &s);
+                });
+            }
         });
     }
 

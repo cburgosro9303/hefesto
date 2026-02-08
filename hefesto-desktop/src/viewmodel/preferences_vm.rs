@@ -5,10 +5,10 @@
 
 use std::sync::Arc;
 
-use slint::{ComponentHandle, SharedString};
+use slint::{ComponentHandle, Global, SharedString};
 
 use crate::i18n::{I18nService, Language};
-use crate::AppWindow;
+use crate::{AppWindow, Theme};
 
 /// Wires preferences callbacks and sets initial state.
 pub fn setup_preferences(
@@ -22,6 +22,7 @@ pub fn setup_preferences(
             tracing::info!("Theme changed to: {}", if dark { "dark" } else { "light" });
             let _ = weak.upgrade_in_event_loop(move |w| {
                 w.set_pref_dark_mode(dark);
+                Theme::get(&w).set_dark_mode(dark);
             });
         });
     }
@@ -121,6 +122,12 @@ pub fn apply_i18n_labels(weak: &slint::Weak<AppWindow>, i18n: &I18nService) {
         proc_label_sort_mem: i18n.t("procwatch.sort.memory"),
         proc_label_auto: i18n.t("procwatch.auto.refresh"),
 
+        // Process Explorer terminate
+        proc_label_terminate: i18n.t("procwatch.terminate.process"),
+
+        // Network auto-refresh
+        net_label_auto_refresh: i18n.t("portinfo.auto.refresh"),
+
         // Process Monitor
         mon_label_start: i18n.t("execution.start"),
         mon_label_stop: i18n.t("execution.stop"),
@@ -130,6 +137,8 @@ pub fn apply_i18n_labels(weak: &slint::Weak<AppWindow>, i18n: &I18nService) {
         mon_label_io_read: i18n.t("procwatch.io.read"),
         mon_label_io_write: i18n.t("procwatch.io.write"),
         mon_label_search_name: i18n.t("procwatch.search.name"),
+        mon_label_cpu_history: i18n.t("procwatch.cpu.history"),
+        mon_label_mem_history: i18n.t("procwatch.mem.history"),
 
         // Tools
         tools_label_base64: i18n.t("tools.base64"),
@@ -215,6 +224,12 @@ pub fn apply_i18n_labels(weak: &slint::Weak<AppWindow>, i18n: &I18nService) {
         w.set_proc_label_sort_mem(SharedString::from(&labels.proc_label_sort_mem));
         w.set_proc_label_auto(SharedString::from(&labels.proc_label_auto));
 
+        // Process Explorer terminate
+        w.set_proc_label_terminate(SharedString::from(&labels.proc_label_terminate));
+
+        // Network auto-refresh
+        w.set_net_label_auto_refresh(SharedString::from(&labels.net_label_auto_refresh));
+
         // Process Monitor
         w.set_mon_label_start(SharedString::from(&labels.mon_label_start));
         w.set_mon_label_stop(SharedString::from(&labels.mon_label_stop));
@@ -224,6 +239,8 @@ pub fn apply_i18n_labels(weak: &slint::Weak<AppWindow>, i18n: &I18nService) {
         w.set_mon_label_io_read(SharedString::from(&labels.mon_label_io_read));
         w.set_mon_label_io_write(SharedString::from(&labels.mon_label_io_write));
         w.set_mon_label_search_name(SharedString::from(&labels.mon_label_search_name));
+        w.set_mon_label_cpu_history(SharedString::from(&labels.mon_label_cpu_history));
+        w.set_mon_label_mem_history(SharedString::from(&labels.mon_label_mem_history));
 
         // Tools
         w.set_tools_label_base64(SharedString::from(&labels.tools_label_base64));
@@ -301,6 +318,8 @@ struct I18nLabels {
     proc_label_sort_cpu: String,
     proc_label_sort_mem: String,
     proc_label_auto: String,
+    proc_label_terminate: String,
+    net_label_auto_refresh: String,
     mon_label_start: String,
     mon_label_stop: String,
     mon_label_search: String,
@@ -309,6 +328,8 @@ struct I18nLabels {
     mon_label_io_read: String,
     mon_label_io_write: String,
     mon_label_search_name: String,
+    mon_label_cpu_history: String,
+    mon_label_mem_history: String,
     tools_label_base64: String,
     tools_label_json: String,
     tools_label_encode: String,

@@ -2,6 +2,7 @@ import { ScrollView, Button, LineEdit } from "std-widgets.slint";
 import { Theme } from "../theme.slint";
 import { KpiCard } from "../components/kpi_card.slint";
 import { StatusBadge } from "../components/status_badge.slint";
+import { LineGraph, GraphPoint } from "../components/line_graph.slint";
 
 export component ProcessMonitorView inherits Rectangle {
     // i18n labels
@@ -13,6 +14,8 @@ export component ProcessMonitorView inherits Rectangle {
     in property <string> label-io-read:    "Read I/O";
     in property <string> label-io-write:   "Write I/O";
     in property <string> label-search-name:"Search by name...";
+    in property <string> label-cpu-history: "CPU History";
+    in property <string> label-mem-history: "Memory History";
 
     // Monitor data
     in property <string> pid-display:      "--";
@@ -27,6 +30,10 @@ export component ProcessMonitorView inherits Rectangle {
     in property <int> state-severity:      0;
     in property <bool> monitoring:         false;
     in property <string> error-message:    "";
+
+    // Graph data
+    in property <[GraphPoint]> cpu-history: [];
+    in property <[GraphPoint]> mem-history: [];
 
     // PID/Name input
     in-out property <string> pid-input:    "";
@@ -256,8 +263,31 @@ export component ProcessMonitorView inherits Rectangle {
                 }
             }
 
-            // Placeholder for charts area
-            Rectangle {
+            // CPU and Memory history graphs
+            if root.monitoring: HorizontalLayout {
+                spacing: Theme.space-md;
+
+                LineGraph {
+                    horizontal-stretch: 1;
+                    title: root.label-cpu-history;
+                    current-value: root.cpu-percent;
+                    line-color: Theme.peach;
+                    data-points: root.cpu-history;
+                    max-points: 60;
+                }
+
+                LineGraph {
+                    horizontal-stretch: 1;
+                    title: root.label-mem-history;
+                    current-value: root.mem-percent;
+                    line-color: Theme.info;
+                    data-points: root.mem-history;
+                    max-points: 60;
+                }
+            }
+
+            // Placeholder when not monitoring
+            if !root.monitoring: Rectangle {
                 min-height: 200px;
                 border-radius: Theme.radius-md;
                 background: Theme.bg-primary;
@@ -265,7 +295,7 @@ export component ProcessMonitorView inherits Rectangle {
                 border-color: Theme.border;
 
                 Text {
-                    text: root.monitoring ? "Monitoring active - CPU/Memory history" : "Enter a PID or name to start monitoring";
+                    text: "Enter a PID or name to start monitoring";
                     color: Theme.fg-muted;
                     font-size: Theme.font-size-base;
                     horizontal-alignment: center;

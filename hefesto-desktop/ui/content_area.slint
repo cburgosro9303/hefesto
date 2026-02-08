@@ -3,10 +3,11 @@ import { DashboardView } from "views/dashboard.slint";
 import { NetworkExplorerView, PortEntry } from "views/network_explorer.slint";
 import { ProcessExplorerView, ProcessEntry } from "views/process_explorer.slint";
 import { ProcessMonitorView } from "views/process_monitor.slint";
+import { LineGraph, GraphPoint } from "components/line_graph.slint";
 import { ToolsView } from "views/tools.slint";
 import { PreferencesView } from "views/preferences.slint";
 
-export { PortEntry, ProcessEntry }
+export { PortEntry, ProcessEntry, GraphPoint }
 
 export component ContentArea inherits Rectangle {
     in property <int> active-view: 0;
@@ -45,13 +46,18 @@ export component ContentArea inherits Rectangle {
     in property <string> net-total-listening:       "0";
     in property <string> net-tcp-count:             "0";
     in property <string> net-udp-count:             "0";
+    in property <string> net-label-auto-refresh:   "Auto Refresh";
     in property <[PortEntry]> net-ports:            [];
     in-out property <int> net-selected-index:       -1;
+    in-out property <bool> net-auto-refresh:        false;
+    in-out property <int> net-refresh-interval:     10;
     callback net-refresh-requested();
     callback net-search-changed(string);
     callback net-protocol-filter-changed(string);
     callback net-row-selected(int);
     callback net-export-requested();
+    callback net-auto-refresh-toggled(bool);
+    callback net-refresh-interval-changed(int);
 
     // ---- Process Explorer properties ----
     in property <string> proc-label-total:       "Total Processes";
@@ -73,6 +79,7 @@ export component ContentArea inherits Rectangle {
     in property <string> proc-total-processes:   "0";
     in property <string> proc-system-cpu:        "0.0%";
     in property <string> proc-system-memory:     "0.0%";
+    in property <string> proc-label-terminate:   "Terminate Process";
     in property <[ProcessEntry]> proc-processes: [];
     in-out property <int> proc-selected-index:   -1;
     in-out property <bool> proc-auto-refresh:    false;
@@ -83,6 +90,7 @@ export component ContentArea inherits Rectangle {
     callback proc-row-double-clicked(int);
     callback proc-export-requested();
     callback proc-auto-refresh-toggled(bool);
+    callback proc-kill-requested(int);
 
     // ---- Process Monitor properties ----
     in property <string> mon-label-start:       "Start";
@@ -93,6 +101,8 @@ export component ContentArea inherits Rectangle {
     in property <string> mon-label-io-read:     "Read I/O";
     in property <string> mon-label-io-write:    "Write I/O";
     in property <string> mon-label-search-name: "Search by name...";
+    in property <string> mon-label-cpu-history: "CPU History";
+    in property <string> mon-label-mem-history: "Memory History";
     in property <string> mon-pid-display:       "--";
     in property <string> mon-process-name:      "--";
     in property <string> mon-thread-count:      "--";
@@ -105,6 +115,8 @@ export component ContentArea inherits Rectangle {
     in property <int> mon-state-severity:       0;
     in property <bool> mon-monitoring:          false;
     in property <string> mon-error-message:     "";
+    in property <[GraphPoint]> mon-cpu-history: [];
+    in property <[GraphPoint]> mon-mem-history: [];
     in-out property <string> mon-pid-input:     "";
     in-out property <string> mon-name-input:    "";
     callback mon-start-by-pid();
@@ -200,16 +212,21 @@ export component ContentArea inherits Rectangle {
         label-security: root.net-label-security;
         label-refresh: root.net-label-refresh;
         label-export: root.net-label-export;
+        label-auto-refresh: root.net-label-auto-refresh;
         total-listening: root.net-total-listening;
         tcp-count: root.net-tcp-count;
         udp-count: root.net-udp-count;
         ports: root.net-ports;
         selected-index: root.net-selected-index;
+        auto-refresh <=> root.net-auto-refresh;
+        refresh-interval <=> root.net-refresh-interval;
         refresh-requested => { root.net-refresh-requested(); }
         search-changed(v) => { root.net-search-changed(v); }
         protocol-filter-changed(v) => { root.net-protocol-filter-changed(v); }
         row-selected(i) => { root.net-row-selected(i); }
         export-requested => { root.net-export-requested(); }
+        auto-refresh-toggled(v) => { root.net-auto-refresh-toggled(v); }
+        refresh-interval-changed(v) => { root.net-refresh-interval-changed(v); }
     }
 
     // View 2: Process Explorer
@@ -230,6 +247,7 @@ export component ContentArea inherits Rectangle {
         label-sort-cpu: root.proc-label-sort-cpu;
         label-sort-memory: root.proc-label-sort-mem;
         label-auto-refresh: root.proc-label-auto;
+        label-terminate: root.proc-label-terminate;
         total-processes: root.proc-total-processes;
         system-cpu: root.proc-system-cpu;
         system-memory: root.proc-system-memory;
@@ -243,6 +261,7 @@ export component ContentArea inherits Rectangle {
         row-double-clicked(i) => { root.proc-row-double-clicked(i); }
         export-requested => { root.proc-export-requested(); }
         auto-refresh-toggled(v) => { root.proc-auto-refresh-toggled(v); }
+        kill-requested(i) => { root.proc-kill-requested(i); }
     }
 
     // View 3: Process Monitor
@@ -255,6 +274,8 @@ export component ContentArea inherits Rectangle {
         label-io-read: root.mon-label-io-read;
         label-io-write: root.mon-label-io-write;
         label-search-name: root.mon-label-search-name;
+        label-cpu-history: root.mon-label-cpu-history;
+        label-mem-history: root.mon-label-mem-history;
         pid-display: root.mon-pid-display;
         process-name: root.mon-process-name;
         thread-count: root.mon-thread-count;
@@ -267,6 +288,8 @@ export component ContentArea inherits Rectangle {
         state-severity: root.mon-state-severity;
         monitoring: root.mon-monitoring;
         error-message: root.mon-error-message;
+        cpu-history: root.mon-cpu-history;
+        mem-history: root.mon-mem-history;
         pid-input <=> root.mon-pid-input;
         name-input <=> root.mon-name-input;
         start-by-pid => { root.mon-start-by-pid(); }
