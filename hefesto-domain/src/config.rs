@@ -108,13 +108,27 @@ impl Default for ProcWatchConfig {
     }
 }
 
-fn default_256() -> i32 { 256 }
-fn default_5000() -> u64 { 5000 }
-fn default_10000() -> u64 { 10000 }
-fn default_1000u32() -> u32 { 1000 }
-fn default_1000u64() -> u64 { 1000 }
-fn default_10() -> usize { 10 }
-fn default_600() -> u64 { 600 }
+fn default_256() -> i32 {
+    256
+}
+fn default_5000() -> u64 {
+    5000
+}
+fn default_10000() -> u64 {
+    10000
+}
+fn default_1000u32() -> u32 {
+    1000
+}
+fn default_1000u64() -> u64 {
+    1000
+}
+fn default_10() -> usize {
+    10
+}
+fn default_600() -> u64 {
+    600
+}
 
 impl HefestoConfig {
     /// Returns the global configuration singleton.

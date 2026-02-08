@@ -25,7 +25,10 @@ impl ServiceFactory {
         let port_parser: Arc<dyn PortParser> = Arc::from(port_parser::create_parser());
         let process_sampler: Arc<dyn ProcessSampler> = Arc::new(SysInfoSampler::new());
 
-        tracing::info!("ServiceFactory initialized with language: {}", language.code());
+        tracing::info!(
+            "ServiceFactory initialized with language: {}",
+            language.code()
+        );
 
         Self {
             i18n,

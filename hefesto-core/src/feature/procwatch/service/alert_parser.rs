@@ -197,9 +197,10 @@ fn parse_unit(unit_str: Option<&str>, metric: &MetricType) -> ThresholdUnit {
         Some(u) if !u.is_empty() => ThresholdUnit::from_str(u),
         _ => match metric {
             MetricType::Cpu => ThresholdUnit::Percent,
-            MetricType::Rss | MetricType::Virtual | MetricType::ReadBytes | MetricType::WriteBytes => {
-                ThresholdUnit::Bytes
-            }
+            MetricType::Rss
+            | MetricType::Virtual
+            | MetricType::ReadBytes
+            | MetricType::WriteBytes => ThresholdUnit::Bytes,
             MetricType::Threads | MetricType::Fd => ThresholdUnit::None,
         },
     }
@@ -336,13 +337,28 @@ mod tests {
     fn test_metric_aliases() {
         assert_eq!(parser().parse("cpu%>50").unwrap().metric, MetricType::Cpu);
         assert_eq!(parser().parse("mem>100MB").unwrap().metric, MetricType::Rss);
-        assert_eq!(parser().parse("memory>100MB").unwrap().metric, MetricType::Rss);
-        assert_eq!(parser().parse("vsz>100MB").unwrap().metric, MetricType::Virtual);
-        assert_eq!(parser().parse("virt>100MB").unwrap().metric, MetricType::Virtual);
+        assert_eq!(
+            parser().parse("memory>100MB").unwrap().metric,
+            MetricType::Rss
+        );
+        assert_eq!(
+            parser().parse("vsz>100MB").unwrap().metric,
+            MetricType::Virtual
+        );
+        assert_eq!(
+            parser().parse("virt>100MB").unwrap().metric,
+            MetricType::Virtual
+        );
         assert_eq!(parser().parse("fds>100").unwrap().metric, MetricType::Fd);
         assert_eq!(parser().parse("files>100").unwrap().metric, MetricType::Fd);
-        assert_eq!(parser().parse("read>100MB").unwrap().metric, MetricType::ReadBytes);
-        assert_eq!(parser().parse("write>100MB").unwrap().metric, MetricType::WriteBytes);
+        assert_eq!(
+            parser().parse("read>100MB").unwrap().metric,
+            MetricType::ReadBytes
+        );
+        assert_eq!(
+            parser().parse("write>100MB").unwrap().metric,
+            MetricType::WriteBytes
+        );
     }
 
     // ── Default units ──────────────────────────────────────────────────
@@ -390,14 +406,20 @@ mod tests {
     fn test_empty_expression() {
         let result = parser().parse("");
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), AlertParserError::EmptyExpression));
+        assert!(matches!(
+            result.unwrap_err(),
+            AlertParserError::EmptyExpression
+        ));
     }
 
     #[test]
     fn test_whitespace_only_expression() {
         let result = parser().parse("   ");
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), AlertParserError::EmptyExpression));
+        assert!(matches!(
+            result.unwrap_err(),
+            AlertParserError::EmptyExpression
+        ));
     }
 
     #[test]
@@ -414,7 +436,10 @@ mod tests {
     fn test_unknown_metric() {
         let result = parser().parse("bogus>80%");
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), AlertParserError::UnknownMetric(_)));
+        assert!(matches!(
+            result.unwrap_err(),
+            AlertParserError::UnknownMetric(_)
+        ));
     }
 
     // ── Validation helper ──────────────────────────────────────────────

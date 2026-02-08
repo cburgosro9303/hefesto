@@ -85,7 +85,11 @@ impl DockerService {
         }
 
         let output = match Command::new("docker")
-            .args(["ps", "--format", "{{.ID}}|{{.Names}}|{{.Image}}|{{.Status}}"])
+            .args([
+                "ps",
+                "--format",
+                "{{.ID}}|{{.Names}}|{{.Image}}|{{.Status}}",
+            ])
             .output()
         {
             Ok(o) => o,
@@ -237,10 +241,7 @@ impl DockerService {
 
     fn find_container_id_from_cgroup(&self, pid: u32) -> Option<String> {
         let cgroup_path = format!("/proc/{pid}/cgroup");
-        let output = Command::new("cat")
-            .arg(&cgroup_path)
-            .output()
-            .ok()?;
+        let output = Command::new("cat").arg(&cgroup_path).output().ok()?;
 
         let stdout = String::from_utf8_lossy(&output.stdout);
         let re = regex::Regex::new(r"docker[/-]([a-f0-9]{64})").ok()?;
@@ -257,13 +258,14 @@ impl DockerService {
     }
 
     fn find_container_id_from_docker_top(&self, pid: u32) -> Option<String> {
-        let output = Command::new("docker")
-            .args(["ps", "-q"])
-            .output()
-            .ok()?;
+        let output = Command::new("docker").args(["ps", "-q"]).output().ok()?;
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        let container_ids: Vec<&str> = stdout.lines().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
+        let container_ids: Vec<&str> = stdout
+            .lines()
+            .map(|l| l.trim())
+            .filter(|l| !l.is_empty())
+            .collect();
 
         for container_id in container_ids {
             if self.container_has_pid(container_id, pid) {

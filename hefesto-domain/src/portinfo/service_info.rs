@@ -47,7 +47,11 @@ pub struct ServiceInfo {
 }
 
 impl ServiceInfo {
-    pub fn new(name: impl Into<String>, description: impl Into<String>, category: ServiceCategory) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        description: impl Into<String>,
+        category: ServiceCategory,
+    ) -> Self {
         Self {
             name: name.into(),
             description: description.into(),

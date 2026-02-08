@@ -12,7 +12,8 @@ impl InteractiveMenu {
     /// Runs the interactive menu loop.
     pub fn run(ctx: &ExecutionContext, registry: &CommandRegistry) {
         ctx.output.print_header("Hefesto - System Diagnostic Tool");
-        ctx.output.println("Type 'help' for available commands, 'exit' to quit.");
+        ctx.output
+            .println("Type 'help' for available commands, 'exit' to quit.");
         ctx.output.print_separator();
 
         loop {
@@ -44,7 +45,8 @@ impl InteractiveMenu {
                         if let Some(cmd) = registry.find(cmd_name) {
                             HelpRenderer::render_command(ctx.output.as_ref(), cmd);
                         } else {
-                            ctx.output.print_error(&format!("Unknown command: {}", cmd_name));
+                            ctx.output
+                                .print_error(&format!("Unknown command: {}", cmd_name));
                         }
                     } else {
                         HelpRenderer::render_all(ctx.output.as_ref(), registry.all());

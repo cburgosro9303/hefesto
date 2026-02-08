@@ -91,10 +91,9 @@ pub fn setup_dashboard(
         let ps = Arc::clone(&ps);
 
         tokio::spawn(async move {
-            let data = tokio::task::spawn_blocking(move || {
-                load_dashboard_data(pp.as_ref(), ps.as_ref())
-            })
-            .await;
+            let data =
+                tokio::task::spawn_blocking(move || load_dashboard_data(pp.as_ref(), ps.as_ref()))
+                    .await;
 
             if let Ok(data) = data {
                 let _ = weak.upgrade_in_event_loop(move |w| {
@@ -116,10 +115,9 @@ pub fn setup_dashboard(
     let ps = Arc::clone(&process_sampler);
 
     tokio::spawn(async move {
-        let data = tokio::task::spawn_blocking(move || {
-            load_dashboard_data(pp.as_ref(), ps.as_ref())
-        })
-        .await;
+        let data =
+            tokio::task::spawn_blocking(move || load_dashboard_data(pp.as_ref(), ps.as_ref()))
+                .await;
 
         if let Ok(data) = data {
             let _ = weak.upgrade_in_event_loop(move |w| {

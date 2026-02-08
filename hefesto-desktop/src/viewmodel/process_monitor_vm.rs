@@ -156,10 +156,7 @@ fn spawn_monitor_loop(
 }
 
 /// Wires process monitor callbacks.
-pub fn setup_process_monitor(
-    window: &AppWindow,
-    process_sampler: Arc<dyn ProcessSampler>,
-) {
+pub fn setup_process_monitor(window: &AppWindow, process_sampler: Arc<dyn ProcessSampler>) {
     let monitoring = Arc::new(AtomicBool::new(false));
     let history = Arc::new(Mutex::new(HistoryBuffer::new()));
 
@@ -265,13 +262,7 @@ pub fn setup_process_monitor(
                             w.set_mon_error_message(SharedString::default());
                         });
 
-                        spawn_monitor_loop(
-                            weak_clone,
-                            ps,
-                            monitoring_clone,
-                            history_clone,
-                            pid,
-                        );
+                        spawn_monitor_loop(weak_clone, ps, monitoring_clone, history_clone, pid);
                     }
                     Ok(Ok(_)) => {
                         let _ = weak_clone.upgrade_in_event_loop(|w| {

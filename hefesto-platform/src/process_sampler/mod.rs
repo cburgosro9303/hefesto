@@ -78,7 +78,12 @@ impl ProcessSampler for SysInfoSampler {
 
     fn top_by_cpu(&self, limit: usize) -> Result<Vec<ProcessSample>> {
         let mut all = self.refresh_and_collect();
-        all.sort_by(|a, b| b.cpu.percent_instant.partial_cmp(&a.cpu.percent_instant).unwrap());
+        all.sort_by(|a, b| {
+            b.cpu
+                .percent_instant
+                .partial_cmp(&a.cpu.percent_instant)
+                .unwrap()
+        });
         all.truncate(limit);
         Ok(all)
     }

@@ -88,7 +88,8 @@ fn run(args: Vec<String>) -> i32 {
     if first_arg == "--version" {
         ctx.output.println(&format!("Hefesto v{}", VERSION));
         let info = hefesto_platform::system_info::get_system_info();
-        ctx.output.println(&format!("{} {}", info.os, info.os_version));
+        ctx.output
+            .println(&format!("{} {}", info.os, info.os_version));
         return 0;
     }
 
@@ -97,14 +98,13 @@ fn run(args: Vec<String>) -> i32 {
     let command_args: Vec<String> = remaining_args[1..].to_vec();
 
     // Check for help on specific command
-    if !command_args.is_empty()
-        && (command_args[0] == "--help" || command_args[0] == "-h")
-    {
+    if !command_args.is_empty() && (command_args[0] == "--help" || command_args[0] == "-h") {
         if let Some(cmd) = registry.find(command_name) {
             HelpRenderer::render_command(ctx.output.as_ref(), cmd);
             return 0;
         } else {
-            ctx.output.print_error(&format!("Comando desconocido: {}", command_name));
+            ctx.output
+                .print_error(&format!("Comando desconocido: {}", command_name));
             return 1;
         }
     }
@@ -131,8 +131,10 @@ fn run(args: Vec<String>) -> i32 {
             }
         }
         None => {
-            ctx.output.print_error(&format!("Comando desconocido: {}", command_name));
-            ctx.output.println("Usa 'hefesto --help' para ver los comandos disponibles.");
+            ctx.output
+                .print_error(&format!("Comando desconocido: {}", command_name));
+            ctx.output
+                .println("Usa 'hefesto --help' para ver los comandos disponibles.");
             1
         }
     }

@@ -86,7 +86,9 @@ impl AlertEngine {
             .unwrap_or(WindowCondition::For);
 
         match condition {
-            WindowCondition::For => self.evaluate_for_condition(sample, rule, current_value, window),
+            WindowCondition::For => {
+                self.evaluate_for_condition(sample, rule, current_value, window)
+            }
             WindowCondition::Increasing => {
                 self.evaluate_increasing_condition(sample, rule, current_value, window)
             }
@@ -387,8 +389,18 @@ mod tests {
     fn test_multiple_rules() {
         let mut engine = AlertEngine::with_default_history();
         let rules = vec![
-            AlertRule::simple(MetricType::Cpu, ComparisonOperator::Greater, 80.0, ThresholdUnit::Percent),
-            AlertRule::simple(MetricType::Rss, ComparisonOperator::Greater, 1_000_000.0, ThresholdUnit::Bytes),
+            AlertRule::simple(
+                MetricType::Cpu,
+                ComparisonOperator::Greater,
+                80.0,
+                ThresholdUnit::Percent,
+            ),
+            AlertRule::simple(
+                MetricType::Rss,
+                ComparisonOperator::Greater,
+                1_000_000.0,
+                ThresholdUnit::Bytes,
+            ),
         ];
 
         let sample = make_sample(1, 90.0, 2_000_000);

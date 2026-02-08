@@ -5,9 +5,7 @@ use std::time::Duration;
 use chrono::Local;
 use regex::Regex;
 
-use hefesto_domain::command::{
-    CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc,
-};
+use hefesto_domain::command::{CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc};
 use hefesto_domain::command_parser;
 use hefesto_domain::config::HefestoConfig;
 use hefesto_domain::procwatch::alert_rule::AlertRule;
@@ -40,11 +38,7 @@ impl ProcWatchCommand {
             "Monitor de procesos (CPU/RAM/threads/FD/IO) con alertas",
         )
         .with_category("system".to_string())
-        .with_aliases(vec![
-            "pw".into(),
-            "pwatch".into(),
-            "procmon".into(),
-        ])
+        .with_aliases(vec!["pw".into(), "pwatch".into(), "procmon".into()])
         .with_documentation(build_documentation());
 
         Self {
@@ -105,9 +99,7 @@ impl Command for ProcWatchCommand {
         let alerts = parse_alert_flags(&parsed, &self.alert_parser);
 
         // ── Dump on breach ─────────────────────────────────────────────
-        let dump_type = parsed
-            .get_flag("dump-on-breach")
-            .and_then(parse_dump_type);
+        let dump_type = parsed.get_flag("dump-on-breach").and_then(parse_dump_type);
 
         // ── Build the service ──────────────────────────────────────────
         let mut service = ProcessMonitorService::with_alert_history(
@@ -170,9 +162,7 @@ impl Command for ProcWatchCommand {
                 None => return CommandResult::failure("Se requiere un nombre de proceso"),
             };
 
-            let match_filter = parsed
-                .get_flag("match")
-                .or_else(|| parsed.get_flag("m"));
+            let match_filter = parsed.get_flag("match").or_else(|| parsed.get_flag("m"));
 
             return handle_name_mode(
                 output.as_ref(),
@@ -409,9 +399,7 @@ fn handle_name_mode(
         samples_done += 1;
 
         if samples.is_empty() {
-            output.print_warning(&format!(
-                "No se encontraron procesos con nombre: {name}"
-            ));
+            output.print_warning(&format!("No se encontraron procesos con nombre: {name}"));
             output.flush();
             break;
         }
@@ -555,17 +543,17 @@ fn clear_screen(output: &dyn OutputPort) {
 //  Formatting: Top mode
 // ════════════════════════════════════════════════════════════════════════
 
-fn format_top_table(
-    samples: &[ProcessSample],
-    mode: TopMode,
-    config: &HefestoConfig,
-) -> String {
+fn format_top_table(samples: &[ProcessSample], mode: TopMode, config: &HefestoConfig) -> String {
     let now = Local::now().format(TIME_FORMAT);
     let mut sb = String::with_capacity(2048);
 
     sb.push_str(&format!(
         "TOP PROCESOS POR {} - {}\n",
-        if mode == TopMode::Cpu { "CPU" } else { "MEMORIA" },
+        if mode == TopMode::Cpu {
+            "CPU"
+        } else {
+            "MEMORIA"
+        },
         now,
     ));
     sb.push_str(&"-".repeat(90));
@@ -666,10 +654,7 @@ fn format_sample_compact(s: &ProcessSample) -> String {
 fn format_sample_detailed(s: &ProcessSample) -> String {
     let mut sb = String::with_capacity(1024);
 
-    sb.push_str(&format!(
-        "PROCESO: {} (PID: {})\n",
-        s.name, s.pid
-    ));
+    sb.push_str(&format!("PROCESO: {} (PID: {})\n", s.name, s.pid));
     sb.push_str(&"=".repeat(60));
     sb.push('\n');
     sb.push_str(&format!("  Usuario:    {}\n", s.user));
@@ -773,17 +758,18 @@ fn build_documentation() -> Documentation {
         // Target selection
         .with_option(OptionDoc::with_value("pid", "ID del proceso a monitorear").with_short("p"))
         .with_option(
-            OptionDoc::with_value("name", "Nombre del proceso (busqueda parcial)")
-                .with_short("n"),
+            OptionDoc::with_value("name", "Nombre del proceso (busqueda parcial)").with_short("n"),
         )
         .with_option(
-            OptionDoc::with_value("match", "Filtro adicional en linea de comandos (con --name)")
-                .with_short("m"),
+            OptionDoc::with_value(
+                "match",
+                "Filtro adicional en linea de comandos (con --name)",
+            )
+            .with_short("m"),
         )
         // Mode options
         .with_option(
-            OptionDoc::with_value("top", "Modo top: cpu o memory (ej: --top cpu)")
-                .with_short("t"),
+            OptionDoc::with_value("top", "Modo top: cpu o memory (ej: --top cpu)").with_short("t"),
         )
         .with_option(
             OptionDoc::with_value("limit", "Limite de procesos en modo top (default: 10)")
@@ -804,8 +790,7 @@ fn build_documentation() -> Documentation {
         .with_option(OptionDoc::flag("once", "Muestra una sola vez y termina"))
         // Alert options
         .with_option(
-            OptionDoc::with_value("alert", "Regla de alerta DSL (puede repetirse)")
-                .with_short("a"),
+            OptionDoc::with_value("alert", "Regla de alerta DSL (puede repetirse)").with_short("a"),
         )
         .with_option(OptionDoc::with_value(
             "dump-on-breach",

@@ -77,9 +77,8 @@ fn bindings_to_port_entries(bindings: &[&PortBinding]) -> Vec<PortEntry> {
     bindings
         .iter()
         .map(|b| {
-            let is_exposed = b.local_address == "0.0.0.0"
-                || b.local_address == "::"
-                || b.local_address == "*";
+            let is_exposed =
+                b.local_address == "0.0.0.0" || b.local_address == "::" || b.local_address == "*";
             PortEntry {
                 port: SharedString::from(b.port.to_string()),
                 protocol: SharedString::from(b.protocol.as_str()),
@@ -120,11 +119,10 @@ fn do_refresh(
     state: Arc<Mutex<NetworkState>>,
 ) {
     tokio::spawn(async move {
-        let bindings = tokio::task::spawn_blocking(move || {
-            pp.find_all(true, true).unwrap_or_default()
-        })
-        .await
-        .unwrap_or_default();
+        let bindings =
+            tokio::task::spawn_blocking(move || pp.find_all(true, true).unwrap_or_default())
+                .await
+                .unwrap_or_default();
 
         {
             let mut s = state.lock().unwrap();
@@ -137,10 +135,7 @@ fn do_refresh(
 }
 
 /// Wires network explorer callbacks and triggers initial data load.
-pub fn setup_network_explorer(
-    window: &AppWindow,
-    port_parser: Arc<dyn PortParser>,
-) {
+pub fn setup_network_explorer(window: &AppWindow, port_parser: Arc<dyn PortParser>) {
     let state = Arc::new(Mutex::new(NetworkState::new()));
     let auto_refresh_active = Arc::new(AtomicBool::new(false));
     let refresh_interval_secs = Arc::new(AtomicU64::new(10));
@@ -219,8 +214,7 @@ pub fn setup_network_explorer(
                             break;
                         }
 
-                        let interval =
-                            refresh_interval_secs.load(Ordering::SeqCst);
+                        let interval = refresh_interval_secs.load(Ordering::SeqCst);
                         tokio::time::sleep(std::time::Duration::from_secs(interval)).await;
 
                         if !auto_refresh_active.load(Ordering::SeqCst) {
@@ -266,11 +260,10 @@ pub fn setup_network_explorer(
         let state = Arc::clone(&state);
 
         tokio::spawn(async move {
-            let bindings = tokio::task::spawn_blocking(move || {
-                pp.find_all(true, true).unwrap_or_default()
-            })
-            .await
-            .unwrap_or_default();
+            let bindings =
+                tokio::task::spawn_blocking(move || pp.find_all(true, true).unwrap_or_default())
+                    .await
+                    .unwrap_or_default();
 
             {
                 let mut s = state.lock().unwrap();

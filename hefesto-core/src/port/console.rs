@@ -41,17 +41,11 @@ impl OutputPort for ConsoleOutputAdapter {
     }
 
     fn print_header(&self, text: &str) {
-        println!(
-            "{}",
-            text.with(Color::Cyan).attribute(Attribute::Bold)
-        );
+        println!("{}", text.with(Color::Cyan).attribute(Attribute::Bold));
     }
 
     fn print_separator(&self) {
-        println!(
-            "{}",
-            "─".repeat(60).with(Color::DarkGrey)
-        );
+        println!("{}", "─".repeat(60).with(Color::DarkGrey));
     }
 
     fn flush(&self) {

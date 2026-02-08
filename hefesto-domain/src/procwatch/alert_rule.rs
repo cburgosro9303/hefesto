@@ -278,7 +278,13 @@ impl AlertRule {
             ThresholdUnit::Mb => "MB".to_string(),
             ThresholdUnit::Gb => "GB".to_string(),
         };
-        let expr = format!("{}{}{}{}", metric.name(), operator.symbol(), threshold, unit_str);
+        let expr = format!(
+            "{}{}{}{}",
+            metric.name(),
+            operator.symbol(),
+            threshold,
+            unit_str
+        );
         Self {
             expression: expr,
             metric,
@@ -350,8 +356,14 @@ mod tests {
         assert_eq!(MetricType::from_str("rss").unwrap(), MetricType::Rss);
         assert_eq!(MetricType::from_str("mem").unwrap(), MetricType::Rss);
         assert_eq!(MetricType::from_str("memory").unwrap(), MetricType::Rss);
-        assert_eq!(MetricType::from_str("virtual").unwrap(), MetricType::Virtual);
-        assert_eq!(MetricType::from_str("threads").unwrap(), MetricType::Threads);
+        assert_eq!(
+            MetricType::from_str("virtual").unwrap(),
+            MetricType::Virtual
+        );
+        assert_eq!(
+            MetricType::from_str("threads").unwrap(),
+            MetricType::Threads
+        );
         assert!(MetricType::from_str("invalid").is_err());
     }
 
@@ -408,7 +420,10 @@ mod tests {
 
     #[test]
     fn test_threshold_unit_to_bytes() {
-        assert_eq!(ThresholdUnit::Gb.to_bytes(1.5), 1.5 * 1024.0 * 1024.0 * 1024.0);
+        assert_eq!(
+            ThresholdUnit::Gb.to_bytes(1.5),
+            1.5 * 1024.0 * 1024.0 * 1024.0
+        );
         assert_eq!(ThresholdUnit::Mb.to_bytes(100.0), 100.0 * 1024.0 * 1024.0);
         assert_eq!(ThresholdUnit::Kb.to_bytes(512.0), 512.0 * 1024.0);
     }

@@ -80,10 +80,10 @@ impl ProcessState_ {
 
 fn state_to_severity(state: &ProcessState) -> i32 {
     match state {
-        ProcessState::Running => 1,  // success
-        ProcessState::Zombie => 3,   // critical
-        ProcessState::Stopped => 2,  // warning
-        _ => 0,                      // info
+        ProcessState::Running => 1, // success
+        ProcessState::Zombie => 3,  // critical
+        ProcessState::Stopped => 2, // warning
+        _ => 0,                     // info
     }
 }
 
@@ -154,11 +154,10 @@ pub fn setup_process_explorer(
             let state = Arc::clone(&state);
 
             tokio::spawn(async move {
-                let procs = tokio::task::spawn_blocking(move || {
-                    ps.get_all_processes().unwrap_or_default()
-                })
-                .await
-                .unwrap_or_default();
+                let procs =
+                    tokio::task::spawn_blocking(move || ps.get_all_processes().unwrap_or_default())
+                        .await
+                        .unwrap_or_default();
 
                 {
                     let mut s = state.lock().unwrap();
@@ -193,7 +192,10 @@ pub fn setup_process_explorer(
             let sort_str = sort_value.as_str();
             s.sort_mode = if sort_str.contains("CPU") || sort_str.contains("cpu") {
                 SortMode::Cpu
-            } else if sort_str.contains("Memory") || sort_str.contains("memory") || sort_str.contains("Mem") {
+            } else if sort_str.contains("Memory")
+                || sort_str.contains("memory")
+                || sort_str.contains("Mem")
+            {
                 SortMode::Memory
             } else if sort_str == "PID" {
                 SortMode::Pid
@@ -247,9 +249,7 @@ pub fn setup_process_explorer(
             let pid_to_kill: Option<u32> = {
                 let s = state_kill.lock().unwrap();
                 let filtered = s.filtered_sorted();
-                filtered
-                    .get(idx as usize)
-                    .map(|p| p.pid)
+                filtered.get(idx as usize).map(|p| p.pid)
             };
 
             if let Some(pid) = pid_to_kill {
@@ -261,10 +261,9 @@ pub fn setup_process_explorer(
 
                 tokio::spawn(async move {
                     let pp_clone = Arc::clone(&pp);
-                    let result = tokio::task::spawn_blocking(move || {
-                        pp_clone.kill_process(pid, false)
-                    })
-                    .await;
+                    let result =
+                        tokio::task::spawn_blocking(move || pp_clone.kill_process(pid, false))
+                            .await;
 
                     match result {
                         Ok(Ok(true)) => {
@@ -309,11 +308,10 @@ pub fn setup_process_explorer(
         let state = Arc::clone(&state);
 
         tokio::spawn(async move {
-            let procs = tokio::task::spawn_blocking(move || {
-                ps.get_all_processes().unwrap_or_default()
-            })
-            .await
-            .unwrap_or_default();
+            let procs =
+                tokio::task::spawn_blocking(move || ps.get_all_processes().unwrap_or_default())
+                    .await
+                    .unwrap_or_default();
 
             {
                 let mut s = state.lock().unwrap();

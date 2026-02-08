@@ -98,7 +98,9 @@ pub fn setup_tools(window: &AppWindow) {
             let _ = weak.upgrade_in_event_loop(|w| {
                 let output = w.get_tools_b64_output().to_string();
                 if !output.is_empty() {
-                    tracing::info!("Base64 output copied to clipboard (clipboard integration pending)");
+                    tracing::info!(
+                        "Base64 output copied to clipboard (clipboard integration pending)"
+                    );
                 }
             });
         });
@@ -205,7 +207,9 @@ pub fn setup_tools(window: &AppWindow) {
             let _ = weak.upgrade_in_event_loop(|w| {
                 let output = w.get_tools_json_output().to_string();
                 if !output.is_empty() {
-                    tracing::info!("JSON output copied to clipboard (clipboard integration pending)");
+                    tracing::info!(
+                        "JSON output copied to clipboard (clipboard integration pending)"
+                    );
                 }
             });
         });

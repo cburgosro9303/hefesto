@@ -1,8 +1,6 @@
 use base64::engine::general_purpose::{STANDARD, URL_SAFE};
 use base64::Engine;
-use hefesto_domain::command::{
-    CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc,
-};
+use hefesto_domain::command::{CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc};
 use hefesto_domain::command_parser;
 use hefesto_domain::command_parser::ParsedArgs;
 
@@ -11,9 +9,16 @@ use crate::context::ExecutionContext;
 
 /// Checks if a flag is used as a boolean. If the parser consumed the next arg
 /// as the flag's value, recovers it into text_parts.
-fn recover_boolean_flag(parsed: &ParsedArgs, long: &str, short: &str, text_parts: &mut Vec<String>) -> bool {
+fn recover_boolean_flag(
+    parsed: &ParsedArgs,
+    long: &str,
+    short: &str,
+    text_parts: &mut Vec<String>,
+) -> bool {
     for name in [long, short] {
-        if name.is_empty() { continue; }
+        if name.is_empty() {
+            continue;
+        }
         if let Some(val) = parsed.get_flag(name) {
             if val == "true" {
                 return true;
@@ -43,7 +48,8 @@ impl Base64Command {
                         Por defecto codifica. Use --decode para decodificar.",
                     )
                     .with_option(
-                        OptionDoc::flag("decode", "Decodifica en lugar de codificar").with_short("d"),
+                        OptionDoc::flag("decode", "Decodifica en lugar de codificar")
+                            .with_short("d"),
                     )
                     .with_option(OptionDoc::flag("url", "Usa codificacion URL-safe"))
                     .with_example(ExampleDoc::new(
@@ -101,7 +107,10 @@ impl Command for Base64Command {
                         ctx.output.println(&result);
                         CommandResult::success()
                     }
-                    Err(e) => CommandResult::failure(format!("Texto decodificado no es UTF-8 valido: {}", e)),
+                    Err(e) => CommandResult::failure(format!(
+                        "Texto decodificado no es UTF-8 valido: {}",
+                        e
+                    )),
                 },
                 Err(e) => CommandResult::failure(format!("Texto Base64 invalido: {}", e)),
             }

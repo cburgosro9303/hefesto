@@ -45,10 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         factory.process_sampler(),
     );
 
-    viewmodel::network_explorer_vm::setup_network_explorer(
-        &window,
-        factory.port_parser(),
-    );
+    viewmodel::network_explorer_vm::setup_network_explorer(&window, factory.port_parser());
 
     viewmodel::process_explorer_vm::setup_process_explorer(
         &window,
@@ -56,17 +53,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         factory.port_parser(),
     );
 
-    viewmodel::process_monitor_vm::setup_process_monitor(
-        &window,
-        factory.process_sampler(),
-    );
+    viewmodel::process_monitor_vm::setup_process_monitor(&window, factory.process_sampler());
 
     viewmodel::tools_vm::setup_tools(&window);
 
-    viewmodel::preferences_vm::setup_preferences(
-        &window,
-        factory.i18n(),
-    );
+    viewmodel::preferences_vm::setup_preferences(&window, factory.i18n());
 
     // Start clock timer (updates every second)
     {
