@@ -109,7 +109,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libssl-dev pkg-config
+          sudo apt-get install -y libssl-dev pkg-config libfontconfig-dev
 
       - name: Build release binaries
         run: cargo build --release --target ${{ matrix.target }}
