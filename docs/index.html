@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HEFESTO - System Monitor &amp; Network Inspector</title>
+  <style>
+    :root {
+      --base: #1e1e2e;
+      --mantle: #181825;
+      --crust: #11111b;
+      --surface0: #313244;
+      --surface1: #45475a;
+      --text: #cdd6f4;
+      --subtext: #a6adc8;
+      --blue: #89b4fa;
+      --green: #a6e3a1;
+      --red: #f38ba8;
+      --yellow: #f9e2af;
+      --mauve: #cba6f7;
+      --teal: #94e2d5;
+      --peach: #fab387;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--base);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--surface0);
+    }
+
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--blue), var(--mauve));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links a {
+      color: var(--subtext);
+      text-decoration: none;
+      margin-left: 28px;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 100px 0 80px;
+    }
+
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 800;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--blue), var(--mauve), var(--peach));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--subtext);
+      max-width: 600px;
+      margin: 0 auto 36px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.85; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--blue), var(--mauve));
+      color: var(--crust);
+    }
+
+    .btn-secondary {
+      background: var(--surface0);
+      color: var(--text);
+    }
+
+    /* Features */
+    .features {
+      padding: 80px 0;
+    }
+
+    .features h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 48px;
+      color: var(--text);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--mantle);
+      border: 1px solid var(--surface0);
+      border-radius: 12px;
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+
+    .feature-card:hover { border-color: var(--surface1); }
+
+    .feature-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .feature-card h3 {
+      font-size: 17px;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--subtext);
+    }
+
+    /* Tech stack */
+    .tech {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .tech h2 {
+      font-size: 32px;
+      margin-bottom: 32px;
+    }
+
+    .tech-badges {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid var(--surface0);
+      color: var(--subtext);
+    }
+
+    /* Install */
+    .install {
+      padding: 60px 0;
+    }
+
+    .install h2 {
+      text-align: center;
+      font-size: 32px;
+      margin-bottom: 32px;
+    }
+
+    .install-block {
+      background: var(--mantle);
+      border: 1px solid var(--surface0);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .install-block h3 {
+      font-size: 14px;
+      color: var(--subtext);
+      margin-bottom: 12px;
+    }
+
+    pre {
+      background: var(--crust);
+      padding: 16px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+      color: var(--green);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--surface0);
+      text-align: center;
+      color: var(--subtext);
+      font-size: 13px;
+    }
+
+    footer a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 32px; }
+      .hero p { font-size: 16px; }
+      .nav-links a { margin-left: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="logo">HEFESTO</div>
+      <nav class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#tech">Tech</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/cburgosro9303/hefesto">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="container">
+      <h1>System Monitor &amp;<br>Network Inspector</h1>
+      <p>A cross-platform desktop application for real-time system monitoring, process management, and network port analysis. Built with Rust and Slint.</p>
+      <div class="hero-buttons">
+        <a href="https://github.com/cburgosro9303/hefesto/releases" class="btn btn-primary">Download</a>
+        <a href="https://github.com/cburgosro9303/hefesto" class="btn btn-secondary">Source Code</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="features" id="features">
+    <div class="container">
+      <h2>Features</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">&#127760;</div>
+          <h3>Network Explorer</h3>
+          <p>Discover all listening ports, filter by TCP/UDP, search by process name or port, and identify exposed services with auto-refresh.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#9881;&#65039;</div>
+          <h3>Process Explorer</h3>
+          <p>Browse all running processes sorted by CPU, memory, PID, or name. Search, filter, and terminate processes directly.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128200;</div>
+          <h3>Process Monitor</h3>
+          <p>Track a single process in real-time with CPU and memory history graphs, I/O metrics, uptime, and state monitoring.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128295;</div>
+          <h3>Developer Tools</h3>
+          <p>Built-in Base64 encoder/decoder with URL-safe support, and JSON formatter, compactor, and validator.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#127912;</div>
+          <h3>Themes</h3>
+          <p>Dark and light themes based on the Catppuccin color palette. Switch instantly from preferences.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#127757;</div>
+          <h3>Internationalization</h3>
+          <p>Full English and Spanish language support with instant switching across the entire interface.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tech" id="tech">
+    <div class="container">
+      <h2>Built With</h2>
+      <div class="tech-badges">
+        <span class="badge">Rust</span>
+        <span class="badge">Slint 1.9</span>
+        <span class="badge">Tokio</span>
+        <span class="badge">sysinfo</span>
+        <span class="badge">serde</span>
+        <span class="badge">native-tls</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="install" id="install">
+    <div class="container">
+      <h2>Installation</h2>
+      <div class="install-block">
+        <h3>From source</h3>
+        <pre>git clone https://github.com/cburgosro9303/hefesto.git
+cd hefesto
+cargo build --release</pre>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>HEFESTO &mdash; Built with Rust &amp; Slint. <a href="https://github.com/cburgosro9303/hefesto">View on GitHub</a></p>
+    </div>
+  </footer>
+</body>
+</html>
