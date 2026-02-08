@@ -103,7 +103,12 @@ pub struct PortBinding {
 
 impl PortBinding {
     /// Creates a minimal binding for LISTEN ports.
-    pub fn listen(port: u16, protocol: Protocol, pid: u32, process_name: impl Into<String>) -> Self {
+    pub fn listen(
+        port: u16,
+        protocol: Protocol,
+        pid: u32,
+        process_name: impl Into<String>,
+    ) -> Self {
         Self {
             port,
             protocol,
@@ -214,10 +219,22 @@ mod tests {
 
     #[test]
     fn test_connection_state_from_str() {
-        assert_eq!(ConnectionState::from_str_loose("LISTEN"), ConnectionState::Listen);
-        assert_eq!(ConnectionState::from_str_loose("ESTABLISHED"), ConnectionState::Established);
-        assert_eq!(ConnectionState::from_str_loose("ESTAB"), ConnectionState::Established);
-        assert_eq!(ConnectionState::from_str_loose("TIME_WAIT"), ConnectionState::TimeWait);
+        assert_eq!(
+            ConnectionState::from_str_loose("LISTEN"),
+            ConnectionState::Listen
+        );
+        assert_eq!(
+            ConnectionState::from_str_loose("ESTABLISHED"),
+            ConnectionState::Established
+        );
+        assert_eq!(
+            ConnectionState::from_str_loose("ESTAB"),
+            ConnectionState::Established
+        );
+        assert_eq!(
+            ConnectionState::from_str_loose("TIME_WAIT"),
+            ConnectionState::TimeWait
+        );
     }
 
     #[test]

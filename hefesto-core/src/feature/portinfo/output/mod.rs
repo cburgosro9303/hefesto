@@ -1,6 +1,6 @@
-pub mod table_formatter;
-pub mod json_formatter;
 pub mod csv_formatter;
+pub mod json_formatter;
+pub mod table_formatter;
 
 use hefesto_domain::portinfo::enriched_port_binding::EnrichedPortBinding;
 use hefesto_domain::portinfo::health_check::HealthCheckResult;

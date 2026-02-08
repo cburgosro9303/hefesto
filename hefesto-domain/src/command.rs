@@ -39,7 +39,9 @@ impl CommandInfo {
         if self.name.eq_ignore_ascii_case(command_name) {
             return true;
         }
-        self.aliases.iter().any(|a| a.eq_ignore_ascii_case(command_name))
+        self.aliases
+            .iter()
+            .any(|a| a.eq_ignore_ascii_case(command_name))
     }
 }
 
@@ -49,7 +51,10 @@ pub enum CommandResult {
     /// Successful execution.
     Success(String),
     /// Failed execution with error.
-    Failure { error: String, cause: Option<String> },
+    Failure {
+        error: String,
+        cause: Option<String>,
+    },
     /// Request to exit the application.
     Exit(i32),
     /// Continue execution (for menu navigation).
@@ -66,11 +71,17 @@ impl CommandResult {
     }
 
     pub fn failure(error: impl Into<String>) -> Self {
-        Self::Failure { error: error.into(), cause: None }
+        Self::Failure {
+            error: error.into(),
+            cause: None,
+        }
     }
 
     pub fn failure_with_cause(error: impl Into<String>, cause: impl Into<String>) -> Self {
-        Self::Failure { error: error.into(), cause: Some(cause.into()) }
+        Self::Failure {
+            error: error.into(),
+            cause: Some(cause.into()),
+        }
     }
 
     pub fn exit() -> Self {

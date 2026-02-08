@@ -39,9 +39,7 @@ impl WindowsPortParser {
             args.extend(["-p", "udp"]);
         }
 
-        let output = Command::new(args[0])
-            .args(&args[1..])
-            .output();
+        let output = Command::new(args[0]).args(&args[1..]).output();
 
         if let Ok(output) = output {
             let stdout = String::from_utf8_lossy(&output.stdout);
@@ -210,7 +208,14 @@ fn normalize_address(addr: &str) -> String {
 
 fn get_command_line(pid: u32) -> String {
     Command::new("wmic")
-        .args(["process", "where", &format!("ProcessId={}", pid), "get", "CommandLine", "/value"])
+        .args([
+            "process",
+            "where",
+            &format!("ProcessId={}", pid),
+            "get",
+            "CommandLine",
+            "/value",
+        ])
         .output()
         .ok()
         .and_then(|output| {

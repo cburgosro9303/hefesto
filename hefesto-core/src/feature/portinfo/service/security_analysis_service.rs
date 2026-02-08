@@ -187,9 +187,7 @@ impl SecurityAnalysisService {
             flags.push(SecurityFlag::critical(
                 SecurityCategory::Debug,
                 "Debug Port Exposed",
-                format!(
-                    "Debug port {port} exposed to network - allows remote code execution"
-                ),
+                format!("Debug port {port} exposed to network - allows remote code execution"),
                 format!(
                     "Bind debug port to 127.0.0.1 only: -agentlib:jdwp=...,address=127.0.0.1:{port}"
                 ),
@@ -263,10 +261,7 @@ impl SecurityAnalysisService {
             SecurityFlag::critical(
                 SecurityCategory::Debug,
                 "Debug Port Active",
-                format!(
-                    "Debug port {} is active and exposed",
-                    binding.port
-                ),
+                format!("Debug port {} is active and exposed", binding.port),
                 "Disable debug in production or bind to localhost only",
                 binding,
             )
@@ -274,10 +269,7 @@ impl SecurityAnalysisService {
             SecurityFlag::info(
                 SecurityCategory::Debug,
                 "Debug Port Active",
-                format!(
-                    "Debug port {} is active (localhost only)",
-                    binding.port
-                ),
+                format!("Debug port {} is active (localhost only)", binding.port),
                 "Ensure debug is disabled in production",
                 binding,
             )
@@ -366,7 +358,9 @@ mod tests {
         let svc = SecurityAnalysisService::new();
         let binding = make_binding(8080, "127.0.0.1", "root", "java");
         let flags = svc.analyze_binding(&binding);
-        assert!(flags.iter().any(|f| f.category == SecurityCategory::Privilege));
+        assert!(flags
+            .iter()
+            .any(|f| f.category == SecurityCategory::Privilege));
         assert!(flags.iter().any(|f| f.severity == Severity::High));
     }
 
@@ -375,7 +369,9 @@ mod tests {
         let svc = SecurityAnalysisService::new();
         let binding = make_binding(80, "127.0.0.1", "root", "nginx");
         let flags = svc.analyze_binding(&binding);
-        let priv_flag = flags.iter().find(|f| f.category == SecurityCategory::Privilege);
+        let priv_flag = flags
+            .iter()
+            .find(|f| f.category == SecurityCategory::Privilege);
         assert!(priv_flag.is_some());
         assert_eq!(priv_flag.unwrap().severity, Severity::Warning);
     }

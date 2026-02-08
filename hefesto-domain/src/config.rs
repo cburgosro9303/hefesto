@@ -108,18 +108,32 @@ impl Default for ProcWatchConfig {
     }
 }
 
-fn default_256() -> i32 { 256 }
-fn default_5000() -> u64 { 5000 }
-fn default_10000() -> u64 { 10000 }
-fn default_1000u32() -> u32 { 1000 }
-fn default_1000u64() -> u64 { 1000 }
-fn default_10() -> usize { 10 }
-fn default_600() -> u64 { 600 }
+fn default_256() -> i32 {
+    256
+}
+fn default_5000() -> u64 {
+    5000
+}
+fn default_10000() -> u64 {
+    10000
+}
+fn default_1000u32() -> u32 {
+    1000
+}
+fn default_1000u64() -> u64 {
+    1000
+}
+fn default_10() -> usize {
+    10
+}
+fn default_600() -> u64 {
+    600
+}
 
 impl HefestoConfig {
     /// Returns the global configuration singleton.
     pub fn get() -> &'static HefestoConfig {
-        CONFIG.get_or_init(|| Self::load_default())
+        CONFIG.get_or_init(Self::load_default)
     }
 
     /// Initializes configuration from YAML string.
@@ -169,7 +183,7 @@ impl HefestoConfig {
     }
 
     /// Truncates text to the configured max width.
-    pub fn truncate<'a>(&self, text: &'a str) -> String {
+    pub fn truncate(&self, text: &str) -> String {
         Self::truncate_to(text, self.max_text_width)
     }
 

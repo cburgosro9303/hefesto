@@ -11,8 +11,7 @@ use super::service_registry::ServiceRegistry;
 
 /// Common development ports that are checked in dev-port discovery.
 const DEV_PORTS: &[u16] = &[
-    3000, 3001, 4200, 5173, 5174, 8080, 8000, 8081, 8082, 5005, 9229, 35729, 8888, 9000, 5000,
-    5001,
+    3000, 3001, 4200, 5173, 5174, 8080, 8000, 8081, 8082, 5005, 9229, 35729, 8888, 9000, 5000, 5001,
 ];
 
 /// Service for orchestrating port information queries.
@@ -37,7 +36,9 @@ impl PortInfoService {
 
     /// Finds bindings for a specific port (TCP only by default).
     pub fn find_by_port(&self, port: u16) -> Vec<PortBinding> {
-        self.parser.find_by_port(port, true, false).unwrap_or_default()
+        self.parser
+            .find_by_port(port, true, false)
+            .unwrap_or_default()
     }
 
     /// Finds bindings for a specific port with protocol selection.
@@ -52,7 +53,9 @@ impl PortInfoService {
 
     /// Finds ports in a range.
     pub fn find_in_range(&self, from: u16, to: u16, listen_only: bool) -> Vec<PortBinding> {
-        self.parser.find_in_range(from, to, listen_only).unwrap_or_default()
+        self.parser
+            .find_in_range(from, to, listen_only)
+            .unwrap_or_default()
     }
 
     /// Finds all listening ports.
@@ -72,7 +75,9 @@ impl PortInfoService {
 
     /// Finds ports by process name (case-insensitive partial match).
     pub fn find_by_process_name(&self, process_name: &str) -> Vec<PortBinding> {
-        self.parser.find_by_process_name(process_name).unwrap_or_default()
+        self.parser
+            .find_by_process_name(process_name)
+            .unwrap_or_default()
     }
 
     /// Finds common development ports that are in use.
@@ -97,7 +102,7 @@ impl PortInfoService {
     /// Returns a list of available ports starting from the given port.
     pub fn find_free_ports(&self, start_port: u16, count: usize) -> Vec<u16> {
         let mut free_ports = Vec::new();
-        let max_port = start_port.saturating_add(1000).min(65535);
+        let max_port = start_port.saturating_add(1000);
         let mut port = start_port;
 
         while free_ports.len() < count && port <= max_port {
@@ -150,7 +155,10 @@ impl PortInfoService {
     /// Enriches a single port binding with service information.
     pub fn enrich_binding(&self, binding: &PortBinding) -> EnrichedPortBinding {
         let eb = EnrichedPortBinding::from_binding(binding.clone());
-        match self.service_registry.lookup(binding.port, binding.protocol.as_str()) {
+        match self
+            .service_registry
+            .lookup(binding.port, binding.protocol.as_str())
+        {
             Some(service) => eb.set_service_info(service.clone()),
             None => eb,
         }
@@ -186,14 +194,29 @@ mod tests {
 
     impl PortParser for MockPortParser {
         fn find_by_port(&self, port: u16, _tcp: bool, _udp: bool) -> Result<Vec<PortBinding>> {
-            Ok(self.bindings.iter().filter(|b| b.port == port).cloned().collect())
+            Ok(self
+                .bindings
+                .iter()
+                .filter(|b| b.port == port)
+                .cloned()
+                .collect())
         }
 
         fn find_by_pid(&self, pid: u32) -> Result<Vec<PortBinding>> {
-            Ok(self.bindings.iter().filter(|b| b.pid == pid).cloned().collect())
+            Ok(self
+                .bindings
+                .iter()
+                .filter(|b| b.pid == pid)
+                .cloned()
+                .collect())
         }
 
-        fn find_in_range(&self, from: u16, to: u16, _listen_only: bool) -> Result<Vec<PortBinding>> {
+        fn find_in_range(
+            &self,
+            from: u16,
+            to: u16,
+            _listen_only: bool,
+        ) -> Result<Vec<PortBinding>> {
             Ok(self
                 .bindings
                 .iter()

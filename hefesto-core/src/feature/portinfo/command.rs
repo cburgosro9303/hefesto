@@ -6,9 +6,7 @@ use chrono::Local;
 use crossterm::style::{Color, Stylize};
 use regex::Regex;
 
-use hefesto_domain::command::{
-    CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc,
-};
+use hefesto_domain::command::{CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc};
 use hefesto_domain::command_parser;
 use hefesto_domain::portinfo::enriched_port_binding::EnrichedPortBinding;
 use hefesto_domain::portinfo::port_binding::PortBinding;
@@ -83,8 +81,11 @@ impl PortInfoCommand {
             )
             // Basic options
             .with_option(
-                OptionDoc::flag("kill", "Termina el proceso que usa el puerto (pide confirmacion)")
-                    .with_short("k"),
+                OptionDoc::flag(
+                    "kill",
+                    "Termina el proceso que usa el puerto (pide confirmacion)",
+                )
+                .with_short("k"),
             )
             .with_option(
                 OptionDoc::flag("force", "Termina sin confirmacion (requiere --kill)")
@@ -123,9 +124,7 @@ impl PortInfoCommand {
                 OptionDoc::with_value("name", "Filtrar por nombre de proceso").with_short("n"),
             )
             // Health check options
-            .with_option(
-                OptionDoc::flag("check", "Realizar health check TCP").with_short("c"),
-            )
+            .with_option(OptionDoc::flag("check", "Realizar health check TCP").with_short("c"))
             .with_option(OptionDoc::flag(
                 "http",
                 "Health check HTTP (requiere --check)",
@@ -213,10 +212,7 @@ impl PortInfoCommand {
                 "portinfo --all --table",
                 "Tabla ASCII formateada",
             ))
-            .with_example(ExampleDoc::new(
-                "portinfo --all --csv",
-                "Export a CSV",
-            ))
+            .with_example(ExampleDoc::new("portinfo --all --csv", "Export a CSV"))
             .with_example(ExampleDoc::new(
                 "portinfo 8080 --kill",
                 "Termina el proceso en el puerto",
@@ -235,16 +231,11 @@ impl PortInfoCommand {
             ))
     }
 
-    fn determine_formatter(
-        &self,
-        parsed: &command_parser::ParsedArgs,
-    ) -> Box<dyn OutputFormatter> {
+    fn determine_formatter(&self, parsed: &command_parser::ParsedArgs) -> Box<dyn OutputFormatter> {
         if parsed.get_boolean("json") || parsed.get_boolean("j") {
             Box::new(JsonFormatter::new())
         } else if parsed.get_boolean("csv") {
             Box::new(CsvFormatter::new())
-        } else if parsed.get_boolean("table") {
-            Box::new(TableFormatter::new(true))
         } else {
             Box::new(TableFormatter::new(true))
         }
@@ -321,9 +312,7 @@ impl PortInfoCommand {
 
     fn handle_docker(&self, ctx: &ExecutionContext) -> CommandResult {
         if !self.docker_service.is_docker_available() {
-            return CommandResult::failure(
-                "Docker no esta disponible o no se puede conectar",
-            );
+            return CommandResult::failure("Docker no esta disponible o no se puede conectar");
         }
 
         let containers = self.docker_service.list_running_containers();
@@ -349,10 +338,8 @@ impl PortInfoCommand {
                 .println(&format!("  Status: {}", container.status));
 
             if !container.port_mappings.is_empty() {
-                ctx.output.println(&format!(
-                    "  Ports: {}",
-                    container.port_mappings_formatted()
-                ));
+                ctx.output
+                    .println(&format!("  Ports: {}", container.port_mappings_formatted()));
             }
             ctx.output.println_empty();
         }
@@ -373,8 +360,7 @@ impl PortInfoCommand {
             return CommandResult::success();
         }
 
-        ctx.output
-            .print_header("PUERTOS DE DESARROLLO EN USO");
+        ctx.output.print_header("PUERTOS DE DESARROLLO EN USO");
         ctx.output.println_empty();
 
         let enriched = self.service.enrich_bindings(&dev_bindings);
@@ -416,10 +402,8 @@ impl PortInfoCommand {
             // Show what's using it
             let bindings = self.service.find_by_port(port);
             for b in &bindings {
-                ctx.output.println(&format!(
-                    "  -> {} (pid {})",
-                    b.process_name, b.pid
-                ));
+                ctx.output
+                    .println(&format!("  -> {} (pid {})", b.process_name, b.pid));
             }
 
             // Suggest alternatives
@@ -485,7 +469,8 @@ impl PortInfoCommand {
 
         let result = if http_check {
             let path = parsed.get_flag_or("path", "/");
-            self.health_check_service.check_http(&host, port, &path, false)
+            self.health_check_service
+                .check_http(&host, port, &path, false)
         } else {
             self.health_check_service.check_tcp(&host, port)
         };
@@ -517,6 +502,7 @@ impl PortInfoCommand {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn handle_single_port(
         &self,
         ctx: &ExecutionContext,
@@ -649,8 +635,7 @@ impl PortInfoCommand {
                     docker.container_name,
                     docker.short_id()
                 ));
-                ctx.output
-                    .println(&format!("  Image: {}", docker.image));
+                ctx.output.println(&format!("  Image: {}", docker.image));
             }
         }
     }
@@ -668,9 +653,7 @@ impl PortInfoCommand {
         let captures = match re.captures(&range_str) {
             Some(c) => c,
             None => {
-                return CommandResult::failure(
-                    "Rango invalido. Usa el formato: 8000-8100",
-                );
+                return CommandResult::failure("Rango invalido. Usa el formato: 8000-8100");
             }
         };
 
@@ -690,9 +673,8 @@ impl PortInfoCommand {
         let bindings = self.service.find_in_range(from, to, listen_only);
 
         if bindings.is_empty() {
-            ctx.output.print_warning(&format!(
-                "No hay puertos ocupados en el rango {from}-{to}"
-            ));
+            ctx.output
+                .print_warning(&format!("No hay puertos ocupados en el rango {from}-{to}"));
             return CommandResult::success();
         }
 
@@ -825,9 +807,7 @@ impl PortInfoCommand {
 
             if !force {
                 ctx.output.println_empty();
-                let prompt = format!(
-                    "Terminar proceso {process_name} (PID {pid})? [s/N]: "
-                );
+                let prompt = format!("Terminar proceso {process_name} (PID {pid})? [s/N]: ");
 
                 match ctx.input.read_line(&prompt) {
                     Some(answer) if answer.to_lowercase().starts_with('s') => {}
@@ -937,9 +917,7 @@ impl Command for PortInfoCommand {
         let port: u16 = match port_str.parse() {
             Ok(p) if p >= 1 => p,
             Ok(p) => {
-                return CommandResult::failure(format!(
-                    "Puerto fuera de rango (1-65535): {p}"
-                ));
+                return CommandResult::failure(format!("Puerto fuera de rango (1-65535): {p}"));
             }
             Err(_) => {
                 return CommandResult::failure(format!("Puerto invalido: {port_str}"));

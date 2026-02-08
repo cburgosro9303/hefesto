@@ -97,7 +97,7 @@ impl SslInfo {
     /// Checks if certificate expires soon (within 30 days).
     pub fn expires_soon(&self) -> bool {
         let days = self.days_until_expiry();
-        days >= 0 && days <= 30
+        (0..=30).contains(&days)
     }
 }
 
@@ -116,7 +116,12 @@ pub struct HealthCheckResult {
 
 impl HealthCheckResult {
     /// Creates a TCP-only health check result.
-    pub fn tcp(port: u16, status: HealthStatus, response_time_ms: u64, message: impl Into<String>) -> Self {
+    pub fn tcp(
+        port: u16,
+        status: HealthStatus,
+        response_time_ms: u64,
+        message: impl Into<String>,
+    ) -> Self {
         Self {
             port,
             protocol: "TCP".to_string(),
@@ -130,7 +135,12 @@ impl HealthCheckResult {
     }
 
     /// Creates an HTTP health check result.
-    pub fn http(port: u16, status: HealthStatus, response_time_ms: u64, http_info: HttpInfo) -> Self {
+    pub fn http(
+        port: u16,
+        status: HealthStatus,
+        response_time_ms: u64,
+        http_info: HttpInfo,
+    ) -> Self {
         Self {
             port,
             protocol: "HTTP".to_string(),

@@ -69,8 +69,14 @@ impl LinuxPortParser {
         let port: u16 = caps.get(3)?.as_str().parse().ok()?;
         let remote_addr = caps.get(4)?.as_str().to_string();
         let remote_port_str = caps.get(5)?.as_str();
-        let process_name = caps.get(6).map(|m| m.as_str().to_string()).unwrap_or_default();
-        let pid: u32 = caps.get(7).and_then(|m| m.as_str().parse().ok()).unwrap_or(0);
+        let process_name = caps
+            .get(6)
+            .map(|m| m.as_str().to_string())
+            .unwrap_or_default();
+        let pid: u32 = caps
+            .get(7)
+            .and_then(|m| m.as_str().parse().ok())
+            .unwrap_or(0);
 
         let remote_port: u16 = if remote_port_str == "*" {
             0
@@ -103,7 +109,10 @@ impl LinuxPortParser {
         let protocol_str = caps.get(4)?.as_str();
         let local_addr = caps.get(5)?.as_str().to_string();
         let port_str = caps.get(6)?.as_str();
-        let remote_addr = caps.get(7).map(|m| m.as_str().to_string()).unwrap_or_default();
+        let remote_addr = caps
+            .get(7)
+            .map(|m| m.as_str().to_string())
+            .unwrap_or_default();
         let remote_port_str = caps.get(8).map(|m| m.as_str());
         let state_str = caps.get(9).map(|m| m.as_str()).unwrap_or("");
 

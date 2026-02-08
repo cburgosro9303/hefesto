@@ -63,10 +63,10 @@ impl AlertParser {
         let duration_value_str = captures.get(6).map(|m| m.as_str());
         let duration_unit_str = captures.get(7).map(|m| m.as_str());
 
-        let metric = MetricType::from_str(metric_str)
+        let metric = MetricType::parse(metric_str)
             .map_err(|_| AlertParserError::UnknownMetric(metric_str.to_string()))?;
 
-        let operator = ComparisonOperator::from_str(operator_str)
+        let operator = ComparisonOperator::parse(operator_str)
             .map_err(|_| AlertParserError::UnknownOperator(operator_str.to_string()))?;
 
         let threshold: f64 = threshold_str
@@ -82,7 +82,7 @@ impl AlertParser {
             (condition_str, duration_value_str, duration_unit_str)
         {
             window_condition = Some(
-                WindowCondition::from_str(cond_str)
+                WindowCondition::parse(cond_str)
                     .map_err(|_| AlertParserError::UnknownCondition(cond_str.to_string()))?,
             );
             window = Some(parse_duration(dur_val_str, dur_unit_str)?);
@@ -194,12 +194,13 @@ pub enum AlertParserError {
 /// default based on the metric type when no unit is provided.
 fn parse_unit(unit_str: Option<&str>, metric: &MetricType) -> ThresholdUnit {
     match unit_str {
-        Some(u) if !u.is_empty() => ThresholdUnit::from_str(u),
+        Some(u) if !u.is_empty() => ThresholdUnit::parse(u),
         _ => match metric {
             MetricType::Cpu => ThresholdUnit::Percent,
-            MetricType::Rss | MetricType::Virtual | MetricType::ReadBytes | MetricType::WriteBytes => {
-                ThresholdUnit::Bytes
-            }
+            MetricType::Rss
+            | MetricType::Virtual
+            | MetricType::ReadBytes
+            | MetricType::WriteBytes => ThresholdUnit::Bytes,
             MetricType::Threads | MetricType::Fd => ThresholdUnit::None,
         },
     }
@@ -336,13 +337,28 @@ mod tests {
     fn test_metric_aliases() {
         assert_eq!(parser().parse("cpu%>50").unwrap().metric, MetricType::Cpu);
         assert_eq!(parser().parse("mem>100MB").unwrap().metric, MetricType::Rss);
-        assert_eq!(parser().parse("memory>100MB").unwrap().metric, MetricType::Rss);
-        assert_eq!(parser().parse("vsz>100MB").unwrap().metric, MetricType::Virtual);
-        assert_eq!(parser().parse("virt>100MB").unwrap().metric, MetricType::Virtual);
+        assert_eq!(
+            parser().parse("memory>100MB").unwrap().metric,
+            MetricType::Rss
+        );
+        assert_eq!(
+            parser().parse("vsz>100MB").unwrap().metric,
+            MetricType::Virtual
+        );
+        assert_eq!(
+            parser().parse("virt>100MB").unwrap().metric,
+            MetricType::Virtual
+        );
         assert_eq!(parser().parse("fds>100").unwrap().metric, MetricType::Fd);
         assert_eq!(parser().parse("files>100").unwrap().metric, MetricType::Fd);
-        assert_eq!(parser().parse("read>100MB").unwrap().metric, MetricType::ReadBytes);
-        assert_eq!(parser().parse("write>100MB").unwrap().metric, MetricType::WriteBytes);
+        assert_eq!(
+            parser().parse("read>100MB").unwrap().metric,
+            MetricType::ReadBytes
+        );
+        assert_eq!(
+            parser().parse("write>100MB").unwrap().metric,
+            MetricType::WriteBytes
+        );
     }
 
     // ── Default units ──────────────────────────────────────────────────
@@ -390,14 +406,20 @@ mod tests {
     fn test_empty_expression() {
         let result = parser().parse("");
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), AlertParserError::EmptyExpression));
+        assert!(matches!(
+            result.unwrap_err(),
+            AlertParserError::EmptyExpression
+        ));
     }
 
     #[test]
     fn test_whitespace_only_expression() {
         let result = parser().parse("   ");
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), AlertParserError::EmptyExpression));
+        assert!(matches!(
+            result.unwrap_err(),
+            AlertParserError::EmptyExpression
+        ));
     }
 
     #[test]
@@ -414,7 +436,10 @@ mod tests {
     fn test_unknown_metric() {
         let result = parser().parse("bogus>80%");
         assert!(result.is_err());
-        assert!(matches!(result.unwrap_err(), AlertParserError::UnknownMetric(_)));
+        assert!(matches!(
+            result.unwrap_err(),
+            AlertParserError::UnknownMetric(_)
+        ));
     }
 
     // ── Validation helper ──────────────────────────────────────────────

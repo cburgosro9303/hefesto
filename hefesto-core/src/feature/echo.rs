@@ -1,6 +1,4 @@
-use hefesto_domain::command::{
-    CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc,
-};
+use hefesto_domain::command::{CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc};
 use hefesto_domain::command_parser;
 use hefesto_domain::command_parser::ParsedArgs;
 
@@ -9,7 +7,12 @@ use crate::context::ExecutionContext;
 
 /// Checks if a flag is used as a boolean (value is "true") or consumed a value.
 /// If consumed, recovers the value as text.
-fn is_boolean_flag(parsed: &ParsedArgs, long: &str, short: &str, text_parts: &mut Vec<String>) -> bool {
+fn is_boolean_flag(
+    parsed: &ParsedArgs,
+    long: &str,
+    short: &str,
+    text_parts: &mut Vec<String>,
+) -> bool {
     for name in [long, short] {
         if let Some(val) = parsed.get_flag(name) {
             if val == "true" {
@@ -39,17 +42,25 @@ impl EchoCommand {
                         "Muestra el texto proporcionado en la salida. \
                         Soporta transformaciones como mayusculas, minusculas y repeticion.",
                     )
-                    .with_option(OptionDoc::flag("uppercase", "Convierte a mayusculas").with_short("u"))
-                    .with_option(OptionDoc::flag("lowercase", "Convierte a minusculas").with_short("l"))
                     .with_option(
-                        OptionDoc::with_value("repeat", "Numero de veces a repetir").with_short("r"),
+                        OptionDoc::flag("uppercase", "Convierte a mayusculas").with_short("u"),
+                    )
+                    .with_option(
+                        OptionDoc::flag("lowercase", "Convierte a minusculas").with_short("l"),
+                    )
+                    .with_option(
+                        OptionDoc::with_value("repeat", "Numero de veces a repetir")
+                            .with_short("r"),
                     )
                     .with_option(
                         OptionDoc::with_value("separator", "Separador entre repeticiones")
                             .with_short("s"),
                     )
                     .with_example(ExampleDoc::new("echo Hola Mundo", "Muestra 'Hola Mundo'"))
-                    .with_example(ExampleDoc::new("echo -u 'hola mundo'", "Muestra 'HOLA MUNDO'"))
+                    .with_example(ExampleDoc::new(
+                        "echo -u 'hola mundo'",
+                        "Muestra 'HOLA MUNDO'",
+                    ))
                     .with_example(ExampleDoc::new(
                         "echo -r 3 -s '|' test",
                         "Muestra 'test|test|test'",
@@ -103,7 +114,7 @@ impl Command for EchoCommand {
 
         // Handle repetition
         let mut repeat = parsed.get_flag_as_int_or("repeat", 1);
-        repeat = parsed.get_flag_as_int_or("r", repeat).max(1).min(100);
+        repeat = parsed.get_flag_as_int_or("r", repeat).clamp(1, 100);
 
         let separator = if parsed.has_flag("s") {
             parsed.get_flag_or("s", " ")
@@ -127,8 +138,8 @@ impl Command for EchoCommand {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::port::TestOutput;
     use crate::port::TestInput;
+    use crate::port::TestOutput;
     use std::sync::Arc;
 
     fn make_ctx() -> (ExecutionContext, Arc<TestOutput>) {

@@ -87,14 +87,20 @@ impl OutputFormatter for CsvFormatter {
         sb.push_str(&csv_row(&["metric", "value"]));
 
         let stats = &overview.statistics;
-        sb.push_str(&csv_row(&["total_listening", &stats.total_listening.to_string()]));
+        sb.push_str(&csv_row(&[
+            "total_listening",
+            &stats.total_listening.to_string(),
+        ]));
         sb.push_str(&csv_row(&[
             "total_established",
             &stats.total_established.to_string(),
         ]));
         sb.push_str(&csv_row(&["tcp_count", &stats.tcp_count.to_string()]));
         sb.push_str(&csv_row(&["udp_count", &stats.udp_count.to_string()]));
-        sb.push_str(&csv_row(&["exposed_count", &stats.exposed_count.to_string()]));
+        sb.push_str(&csv_row(&[
+            "exposed_count",
+            &stats.exposed_count.to_string(),
+        ]));
         sb.push_str(&csv_row(&[
             "local_only_count",
             &stats.local_only_count.to_string(),
@@ -116,7 +122,10 @@ impl OutputFormatter for CsvFormatter {
         sb.push_str("# Security Report Summary");
         sb.push_str(NEWLINE);
         sb.push_str(&csv_row(&["severity", "count"]));
-        sb.push_str(&csv_row(&["critical", &report.critical_count().to_string()]));
+        sb.push_str(&csv_row(&[
+            "critical",
+            &report.critical_count().to_string(),
+        ]));
         sb.push_str(&csv_row(&["high", &report.high_count().to_string()]));
         sb.push_str(&csv_row(&["warning", &report.warning_count().to_string()]));
         sb.push_str(&csv_row(&["info", &report.info_count().to_string()]));

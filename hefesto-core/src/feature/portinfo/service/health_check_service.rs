@@ -2,9 +2,7 @@ use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
 use std::time::{Duration, Instant};
 
-use hefesto_domain::portinfo::health_check::{
-    HealthCheckResult, HealthStatus, HttpInfo, SslInfo,
-};
+use hefesto_domain::portinfo::health_check::{HealthCheckResult, HealthStatus, HttpInfo, SslInfo};
 
 /// Default timeout for health checks in milliseconds.
 const DEFAULT_TIMEOUT_MS: u64 = 5000;
@@ -46,15 +44,30 @@ impl HealthCheckService {
             Ok(socket_addr) => match TcpStream::connect_timeout(&socket_addr, self.timeout) {
                 Ok(_) => {
                     let elapsed = start.elapsed().as_millis() as u64;
-                    HealthCheckResult::tcp(port, HealthStatus::Reachable, elapsed, "Connection successful")
+                    HealthCheckResult::tcp(
+                        port,
+                        HealthStatus::Reachable,
+                        elapsed,
+                        "Connection successful",
+                    )
                 }
                 Err(ref e) if e.kind() == std::io::ErrorKind::TimedOut => {
                     let elapsed = start.elapsed().as_millis() as u64;
-                    HealthCheckResult::tcp(port, HealthStatus::Timeout, elapsed, "Connection timed out")
+                    HealthCheckResult::tcp(
+                        port,
+                        HealthStatus::Timeout,
+                        elapsed,
+                        "Connection timed out",
+                    )
                 }
                 Err(ref e) if e.kind() == std::io::ErrorKind::ConnectionRefused => {
                     let elapsed = start.elapsed().as_millis() as u64;
-                    HealthCheckResult::tcp(port, HealthStatus::Refused, elapsed, "Connection refused")
+                    HealthCheckResult::tcp(
+                        port,
+                        HealthStatus::Refused,
+                        elapsed,
+                        "Connection refused",
+                    )
                 }
                 Err(e) => {
                     let elapsed = start.elapsed().as_millis() as u64;
@@ -64,19 +77,26 @@ impl HealthCheckService {
             Err(_) => {
                 // If the address is a hostname, do a DNS-based connect
                 match TcpStream::connect_timeout(
-                    &SocketAddr::new(
-                        std::net::IpAddr::V4(std::net::Ipv4Addr::LOCALHOST),
-                        port,
-                    ),
+                    &SocketAddr::new(std::net::IpAddr::V4(std::net::Ipv4Addr::LOCALHOST), port),
                     self.timeout,
                 ) {
                     Ok(_) => {
                         let elapsed = start.elapsed().as_millis() as u64;
-                        HealthCheckResult::tcp(port, HealthStatus::Reachable, elapsed, "Connection successful")
+                        HealthCheckResult::tcp(
+                            port,
+                            HealthStatus::Reachable,
+                            elapsed,
+                            "Connection successful",
+                        )
                     }
                     Err(e) => {
                         let elapsed = start.elapsed().as_millis() as u64;
-                        HealthCheckResult::tcp(port, HealthStatus::Unreachable, elapsed, e.to_string())
+                        HealthCheckResult::tcp(
+                            port,
+                            HealthStatus::Unreachable,
+                            elapsed,
+                            e.to_string(),
+                        )
                     }
                 }
             }
@@ -115,10 +135,7 @@ impl HealthCheckService {
                         .and_then(|v| v.to_str().ok())
                         .unwrap_or("")
                         .to_string();
-                    let content_length = response
-                        .content_length()
-                        .map(|l| l as i64)
-                        .unwrap_or(-1);
+                    let content_length = response.content_length().map(|l| l as i64).unwrap_or(-1);
 
                     let http_info = HttpInfo {
                         status_code,
@@ -236,12 +253,7 @@ impl HealthCheckService {
             }
             Err(e) => {
                 let elapsed = start.elapsed().as_millis() as u64;
-                return HealthCheckResult::tcp(
-                    port,
-                    HealthStatus::Error,
-                    elapsed,
-                    e.to_string(),
-                );
+                return HealthCheckResult::tcp(port, HealthStatus::Error, elapsed, e.to_string());
             }
         };
 
@@ -249,8 +261,8 @@ impl HealthCheckService {
             Ok(tls_stream) => {
                 let elapsed = start.elapsed().as_millis() as u64;
 
-                if let Ok(cert) = tls_stream.peer_certificate() {
-                    if let Some(cert) = cert {
+                if let Ok(Some(cert)) = tls_stream.peer_certificate() {
+                    {
                         let der = cert.to_der().unwrap_or_default();
                         let ssl_info = parse_certificate_info(&der, &tls_stream);
 

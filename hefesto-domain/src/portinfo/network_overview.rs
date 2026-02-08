@@ -111,9 +111,7 @@ impl NetworkOverview {
     pub fn by_process_name(&self) -> HashMap<String, Vec<&EnrichedPortBinding>> {
         let mut map: HashMap<String, Vec<&EnrichedPortBinding>> = HashMap::new();
         for b in &self.bindings {
-            map.entry(b.process_name().to_string())
-                .or_default()
-                .push(b);
+            map.entry(b.process_name().to_string()).or_default().push(b);
         }
         map
     }

@@ -94,10 +94,7 @@ impl OutputPort for TestOutput {
     }
 
     fn print_separator(&self) {
-        self.lines
-            .lock()
-            .unwrap()
-            .push("─".repeat(60));
+        self.lines.lock().unwrap().push("─".repeat(60));
     }
 
     fn flush(&self) {}

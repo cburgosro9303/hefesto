@@ -211,7 +211,10 @@ impl SecurityReport {
 
     /// Counts findings by severity.
     pub fn count_by_severity(&self, severity: &Severity) -> usize {
-        self.findings.iter().filter(|f| &f.severity == severity).count()
+        self.findings
+            .iter()
+            .filter(|f| &f.severity == severity)
+            .count()
     }
 
     /// Checks if there are critical or high severity issues.

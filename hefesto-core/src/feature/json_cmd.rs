@@ -1,6 +1,4 @@
-use hefesto_domain::command::{
-    CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc,
-};
+use hefesto_domain::command::{CommandInfo, CommandResult, Documentation, ExampleDoc, OptionDoc};
 use hefesto_domain::command_parser;
 use hefesto_domain::command_parser::ParsedArgs;
 use std::path::Path;
@@ -10,9 +8,16 @@ use crate::context::ExecutionContext;
 
 /// Checks if a flag is used as a boolean. If the parser consumed the next arg
 /// as the flag's value, recovers it into text_parts.
-fn recover_boolean_flag(parsed: &ParsedArgs, long: &str, short: &str, text_parts: &mut Vec<String>) -> bool {
+fn recover_boolean_flag(
+    parsed: &ParsedArgs,
+    long: &str,
+    short: &str,
+    text_parts: &mut Vec<String>,
+) -> bool {
     for name in [long, short] {
-        if name.is_empty() { continue; }
+        if name.is_empty() {
+            continue;
+        }
         if let Some(val) = parsed.get_flag(name) {
             if val == "true" {
                 return true;
@@ -44,7 +49,8 @@ impl JsonCommand {
                         OptionDoc::flag("validate", "Solo valida sin formatear").with_short("v"),
                     )
                     .with_option(
-                        OptionDoc::flag("compact", "Salida compacta (sin espacios)").with_short("c"),
+                        OptionDoc::flag("compact", "Salida compacta (sin espacios)")
+                            .with_short("c"),
                     )
                     .with_option(OptionDoc::flag("file", "Lee desde un archivo").with_short("f"))
                     .with_example(ExampleDoc::new(

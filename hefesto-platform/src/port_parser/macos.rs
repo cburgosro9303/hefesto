@@ -24,9 +24,7 @@ impl MacOsPortParser {
     fn run_lsof(&self, args: &[&str]) -> Vec<PortBinding> {
         let mut bindings = Vec::new();
 
-        let output = Command::new("lsof")
-            .args(args)
-            .output();
+        let output = Command::new("lsof").args(args).output();
 
         if let Ok(output) = output {
             let stdout = String::from_utf8_lossy(&output.stdout);
@@ -49,7 +47,10 @@ impl MacOsPortParser {
         let protocol_str = caps.get(5)?.as_str();
         let mut local_addr = caps.get(6)?.as_str().to_string();
         let port_str = caps.get(7)?.as_str();
-        let remote_addr = caps.get(8).map(|m| m.as_str().to_string()).unwrap_or_default();
+        let remote_addr = caps
+            .get(8)
+            .map(|m| m.as_str().to_string())
+            .unwrap_or_default();
         let remote_port_str = caps.get(9).map(|m| m.as_str());
         let state_str = caps.get(10).map(|m| m.as_str()).unwrap_or("");
 
@@ -59,9 +60,7 @@ impl MacOsPortParser {
         }
 
         let port: u16 = port_str.parse().ok()?;
-        let remote_port: u16 = remote_port_str
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(0);
+        let remote_port: u16 = remote_port_str.and_then(|s| s.parse().ok()).unwrap_or(0);
 
         // Normalize local address
         if local_addr == "*" {

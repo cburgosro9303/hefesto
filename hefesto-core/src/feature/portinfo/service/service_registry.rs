@@ -101,7 +101,14 @@ impl ServiceRegistry {
         vec![3306, 5432, 27017, 6379, 1521, 1433, 5984, 9042]
     }
 
-    fn register(&mut self, port: u16, protocol: &str, name: &str, description: &str, category: ServiceCategory) {
+    fn register(
+        &mut self,
+        port: u16,
+        protocol: &str,
+        name: &str,
+        description: &str,
+        category: ServiceCategory,
+    ) {
         let info = ServiceInfo::new(name, description, category);
         if protocol.eq_ignore_ascii_case("TCP") {
             self.tcp_services.insert(port, info);
@@ -112,103 +119,517 @@ impl ServiceRegistry {
 
     fn register_all(&mut self) {
         // ── Database services ──────────────────────────────────────────────
-        self.register(3306, "TCP", "MySQL", "MySQL Database", ServiceCategory::Database);
-        self.register(5432, "TCP", "PostgreSQL", "PostgreSQL Database", ServiceCategory::Database);
-        self.register(27017, "TCP", "MongoDB", "MongoDB Database", ServiceCategory::Database);
-        self.register(6379, "TCP", "Redis", "Redis In-Memory Store", ServiceCategory::Cache);
-        self.register(5984, "TCP", "CouchDB", "CouchDB Database", ServiceCategory::Database);
-        self.register(9042, "TCP", "Cassandra", "Apache Cassandra", ServiceCategory::Database);
-        self.register(7000, "TCP", "Cassandra-Cluster", "Cassandra Cluster", ServiceCategory::Database);
-        self.register(7199, "TCP", "Cassandra-JMX", "Cassandra JMX", ServiceCategory::Database);
-        self.register(1521, "TCP", "Oracle", "Oracle Database", ServiceCategory::Database);
-        self.register(1433, "TCP", "MSSQL", "Microsoft SQL Server", ServiceCategory::Database);
-        self.register(26257, "TCP", "CockroachDB", "CockroachDB", ServiceCategory::Database);
-        self.register(8529, "TCP", "ArangoDB", "ArangoDB", ServiceCategory::Database);
-        self.register(11211, "TCP", "Memcached", "Memcached", ServiceCategory::Cache);
+        self.register(
+            3306,
+            "TCP",
+            "MySQL",
+            "MySQL Database",
+            ServiceCategory::Database,
+        );
+        self.register(
+            5432,
+            "TCP",
+            "PostgreSQL",
+            "PostgreSQL Database",
+            ServiceCategory::Database,
+        );
+        self.register(
+            27017,
+            "TCP",
+            "MongoDB",
+            "MongoDB Database",
+            ServiceCategory::Database,
+        );
+        self.register(
+            6379,
+            "TCP",
+            "Redis",
+            "Redis In-Memory Store",
+            ServiceCategory::Cache,
+        );
+        self.register(
+            5984,
+            "TCP",
+            "CouchDB",
+            "CouchDB Database",
+            ServiceCategory::Database,
+        );
+        self.register(
+            9042,
+            "TCP",
+            "Cassandra",
+            "Apache Cassandra",
+            ServiceCategory::Database,
+        );
+        self.register(
+            7000,
+            "TCP",
+            "Cassandra-Cluster",
+            "Cassandra Cluster",
+            ServiceCategory::Database,
+        );
+        self.register(
+            7199,
+            "TCP",
+            "Cassandra-JMX",
+            "Cassandra JMX",
+            ServiceCategory::Database,
+        );
+        self.register(
+            1521,
+            "TCP",
+            "Oracle",
+            "Oracle Database",
+            ServiceCategory::Database,
+        );
+        self.register(
+            1433,
+            "TCP",
+            "MSSQL",
+            "Microsoft SQL Server",
+            ServiceCategory::Database,
+        );
+        self.register(
+            26257,
+            "TCP",
+            "CockroachDB",
+            "CockroachDB",
+            ServiceCategory::Database,
+        );
+        self.register(
+            8529,
+            "TCP",
+            "ArangoDB",
+            "ArangoDB",
+            ServiceCategory::Database,
+        );
+        self.register(
+            11211,
+            "TCP",
+            "Memcached",
+            "Memcached",
+            ServiceCategory::Cache,
+        );
 
         // ── Web servers ────────────────────────────────────────────────────
         self.register(80, "TCP", "HTTP", "HTTP Web Server", ServiceCategory::Web);
-        self.register(443, "TCP", "HTTPS", "HTTPS Web Server", ServiceCategory::Web);
-        self.register(8080, "TCP", "HTTP-Alt", "Alternative HTTP", ServiceCategory::Web);
-        self.register(8443, "TCP", "HTTPS-Alt", "Alternative HTTPS", ServiceCategory::Web);
-        self.register(8000, "TCP", "HTTP-Alt-2", "Alternative HTTP", ServiceCategory::Web);
-        self.register(3000, "TCP", "Dev-Server", "Development Server", ServiceCategory::Dev);
-        self.register(4200, "TCP", "Angular", "Angular Dev Server", ServiceCategory::Dev);
+        self.register(
+            443,
+            "TCP",
+            "HTTPS",
+            "HTTPS Web Server",
+            ServiceCategory::Web,
+        );
+        self.register(
+            8080,
+            "TCP",
+            "HTTP-Alt",
+            "Alternative HTTP",
+            ServiceCategory::Web,
+        );
+        self.register(
+            8443,
+            "TCP",
+            "HTTPS-Alt",
+            "Alternative HTTPS",
+            ServiceCategory::Web,
+        );
+        self.register(
+            8000,
+            "TCP",
+            "HTTP-Alt-2",
+            "Alternative HTTP",
+            ServiceCategory::Web,
+        );
+        self.register(
+            3000,
+            "TCP",
+            "Dev-Server",
+            "Development Server",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            4200,
+            "TCP",
+            "Angular",
+            "Angular Dev Server",
+            ServiceCategory::Dev,
+        );
         self.register(5173, "TCP", "Vite", "Vite Dev Server", ServiceCategory::Dev);
-        self.register(5174, "TCP", "Vite-Alt", "Vite Dev Server Alt", ServiceCategory::Dev);
-        self.register(3001, "TCP", "Dev-Server-Alt", "Development Server Alt", ServiceCategory::Dev);
+        self.register(
+            5174,
+            "TCP",
+            "Vite-Alt",
+            "Vite Dev Server Alt",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            3001,
+            "TCP",
+            "Dev-Server-Alt",
+            "Development Server Alt",
+            ServiceCategory::Dev,
+        );
 
         // ── Messaging ──────────────────────────────────────────────────────
-        self.register(9092, "TCP", "Kafka", "Apache Kafka", ServiceCategory::Messaging);
-        self.register(2181, "TCP", "Zookeeper", "Apache Zookeeper", ServiceCategory::Messaging);
-        self.register(5672, "TCP", "RabbitMQ", "RabbitMQ AMQP", ServiceCategory::Messaging);
-        self.register(15672, "TCP", "RabbitMQ-Mgmt", "RabbitMQ Management", ServiceCategory::Messaging);
-        self.register(61616, "TCP", "ActiveMQ", "Apache ActiveMQ", ServiceCategory::Messaging);
-        self.register(4222, "TCP", "NATS", "NATS Messaging", ServiceCategory::Messaging);
-        self.register(1883, "TCP", "MQTT", "MQTT Broker", ServiceCategory::Messaging);
-        self.register(8883, "TCP", "MQTT-SSL", "MQTT over SSL", ServiceCategory::Messaging);
+        self.register(
+            9092,
+            "TCP",
+            "Kafka",
+            "Apache Kafka",
+            ServiceCategory::Messaging,
+        );
+        self.register(
+            2181,
+            "TCP",
+            "Zookeeper",
+            "Apache Zookeeper",
+            ServiceCategory::Messaging,
+        );
+        self.register(
+            5672,
+            "TCP",
+            "RabbitMQ",
+            "RabbitMQ AMQP",
+            ServiceCategory::Messaging,
+        );
+        self.register(
+            15672,
+            "TCP",
+            "RabbitMQ-Mgmt",
+            "RabbitMQ Management",
+            ServiceCategory::Messaging,
+        );
+        self.register(
+            61616,
+            "TCP",
+            "ActiveMQ",
+            "Apache ActiveMQ",
+            ServiceCategory::Messaging,
+        );
+        self.register(
+            4222,
+            "TCP",
+            "NATS",
+            "NATS Messaging",
+            ServiceCategory::Messaging,
+        );
+        self.register(
+            1883,
+            "TCP",
+            "MQTT",
+            "MQTT Broker",
+            ServiceCategory::Messaging,
+        );
+        self.register(
+            8883,
+            "TCP",
+            "MQTT-SSL",
+            "MQTT over SSL",
+            ServiceCategory::Messaging,
+        );
 
         // ── Search engines ─────────────────────────────────────────────────
-        self.register(9200, "TCP", "Elasticsearch", "Elasticsearch HTTP", ServiceCategory::Search);
-        self.register(9300, "TCP", "ES-Transport", "Elasticsearch Transport", ServiceCategory::Search);
+        self.register(
+            9200,
+            "TCP",
+            "Elasticsearch",
+            "Elasticsearch HTTP",
+            ServiceCategory::Search,
+        );
+        self.register(
+            9300,
+            "TCP",
+            "ES-Transport",
+            "Elasticsearch Transport",
+            ServiceCategory::Search,
+        );
         self.register(8983, "TCP", "Solr", "Apache Solr", ServiceCategory::Search);
-        self.register(19530, "TCP", "Milvus", "Milvus Vector DB", ServiceCategory::Search);
+        self.register(
+            19530,
+            "TCP",
+            "Milvus",
+            "Milvus Vector DB",
+            ServiceCategory::Search,
+        );
 
         // ── Infrastructure ─────────────────────────────────────────────────
         self.register(22, "TCP", "SSH", "Secure Shell", ServiceCategory::Infra);
-        self.register(21, "TCP", "FTP", "File Transfer Protocol", ServiceCategory::Infra);
+        self.register(
+            21,
+            "TCP",
+            "FTP",
+            "File Transfer Protocol",
+            ServiceCategory::Infra,
+        );
         self.register(25, "TCP", "SMTP", "Mail Server", ServiceCategory::Infra);
-        self.register(53, "TCP", "DNS", "Domain Name System", ServiceCategory::Infra);
-        self.register(53, "UDP", "DNS", "Domain Name System", ServiceCategory::Infra);
+        self.register(
+            53,
+            "TCP",
+            "DNS",
+            "Domain Name System",
+            ServiceCategory::Infra,
+        );
+        self.register(
+            53,
+            "UDP",
+            "DNS",
+            "Domain Name System",
+            ServiceCategory::Infra,
+        );
         self.register(2375, "TCP", "Docker", "Docker API", ServiceCategory::Infra);
-        self.register(2376, "TCP", "Docker-TLS", "Docker TLS API", ServiceCategory::Infra);
-        self.register(6443, "TCP", "K8s-API", "Kubernetes API", ServiceCategory::Infra);
-        self.register(10250, "TCP", "Kubelet", "Kubernetes Kubelet", ServiceCategory::Infra);
+        self.register(
+            2376,
+            "TCP",
+            "Docker-TLS",
+            "Docker TLS API",
+            ServiceCategory::Infra,
+        );
+        self.register(
+            6443,
+            "TCP",
+            "K8s-API",
+            "Kubernetes API",
+            ServiceCategory::Infra,
+        );
+        self.register(
+            10250,
+            "TCP",
+            "Kubelet",
+            "Kubernetes Kubelet",
+            ServiceCategory::Infra,
+        );
         self.register(2379, "TCP", "etcd", "etcd Client", ServiceCategory::Infra);
-        self.register(2380, "TCP", "etcd-Peer", "etcd Peer", ServiceCategory::Infra);
-        self.register(8500, "TCP", "Consul", "HashiCorp Consul", ServiceCategory::Infra);
-        self.register(8600, "TCP", "Consul-DNS", "Consul DNS", ServiceCategory::Infra);
-        self.register(8200, "TCP", "Vault", "HashiCorp Vault", ServiceCategory::Infra);
+        self.register(
+            2380,
+            "TCP",
+            "etcd-Peer",
+            "etcd Peer",
+            ServiceCategory::Infra,
+        );
+        self.register(
+            8500,
+            "TCP",
+            "Consul",
+            "HashiCorp Consul",
+            ServiceCategory::Infra,
+        );
+        self.register(
+            8600,
+            "TCP",
+            "Consul-DNS",
+            "Consul DNS",
+            ServiceCategory::Infra,
+        );
+        self.register(
+            8200,
+            "TCP",
+            "Vault",
+            "HashiCorp Vault",
+            ServiceCategory::Infra,
+        );
 
         // ── Monitoring ─────────────────────────────────────────────────────
-        self.register(9090, "TCP", "Prometheus", "Prometheus Server", ServiceCategory::Monitoring);
+        self.register(
+            9090,
+            "TCP",
+            "Prometheus",
+            "Prometheus Server",
+            ServiceCategory::Monitoring,
+        );
         // Note: port 3000 is registered above as Dev-Server; in Java the last
         // registration wins. We keep Dev-Server since the HashMap behaves the
         // same way (first-inserted preserved).
-        self.register(9093, "TCP", "Alertmanager", "Prometheus Alertmanager", ServiceCategory::Monitoring);
-        self.register(9100, "TCP", "Node-Exporter", "Prometheus Node Exporter", ServiceCategory::Monitoring);
-        self.register(8086, "TCP", "InfluxDB", "InfluxDB Time Series", ServiceCategory::Monitoring);
-        self.register(4317, "TCP", "OTLP-gRPC", "OpenTelemetry gRPC", ServiceCategory::Monitoring);
-        self.register(4318, "TCP", "OTLP-HTTP", "OpenTelemetry HTTP", ServiceCategory::Monitoring);
-        self.register(16686, "TCP", "Jaeger", "Jaeger UI", ServiceCategory::Monitoring);
-        self.register(14268, "TCP", "Jaeger-Collector", "Jaeger Collector", ServiceCategory::Monitoring);
-        self.register(9411, "TCP", "Zipkin", "Zipkin Tracing", ServiceCategory::Monitoring);
+        self.register(
+            9093,
+            "TCP",
+            "Alertmanager",
+            "Prometheus Alertmanager",
+            ServiceCategory::Monitoring,
+        );
+        self.register(
+            9100,
+            "TCP",
+            "Node-Exporter",
+            "Prometheus Node Exporter",
+            ServiceCategory::Monitoring,
+        );
+        self.register(
+            8086,
+            "TCP",
+            "InfluxDB",
+            "InfluxDB Time Series",
+            ServiceCategory::Monitoring,
+        );
+        self.register(
+            4317,
+            "TCP",
+            "OTLP-gRPC",
+            "OpenTelemetry gRPC",
+            ServiceCategory::Monitoring,
+        );
+        self.register(
+            4318,
+            "TCP",
+            "OTLP-HTTP",
+            "OpenTelemetry HTTP",
+            ServiceCategory::Monitoring,
+        );
+        self.register(
+            16686,
+            "TCP",
+            "Jaeger",
+            "Jaeger UI",
+            ServiceCategory::Monitoring,
+        );
+        self.register(
+            14268,
+            "TCP",
+            "Jaeger-Collector",
+            "Jaeger Collector",
+            ServiceCategory::Monitoring,
+        );
+        self.register(
+            9411,
+            "TCP",
+            "Zipkin",
+            "Zipkin Tracing",
+            ServiceCategory::Monitoring,
+        );
 
         // ── Development / Debug ────────────────────────────────────────────
-        self.register(5005, "TCP", "Java-Debug", "Java Debug Port", ServiceCategory::Dev);
-        self.register(9229, "TCP", "Node-Debug", "Node.js Debug", ServiceCategory::Dev);
-        self.register(5858, "TCP", "Node-Debug-Old", "Node.js Debug (Legacy)", ServiceCategory::Dev);
-        self.register(35729, "TCP", "LiveReload", "LiveReload Server", ServiceCategory::Dev);
-        self.register(6006, "TCP", "TensorBoard", "TensorFlow TensorBoard", ServiceCategory::Dev);
-        self.register(8888, "TCP", "Jupyter", "Jupyter Notebook", ServiceCategory::Dev);
+        self.register(
+            5005,
+            "TCP",
+            "Java-Debug",
+            "Java Debug Port",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            9229,
+            "TCP",
+            "Node-Debug",
+            "Node.js Debug",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            5858,
+            "TCP",
+            "Node-Debug-Old",
+            "Node.js Debug (Legacy)",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            35729,
+            "TCP",
+            "LiveReload",
+            "LiveReload Server",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            6006,
+            "TCP",
+            "TensorBoard",
+            "TensorFlow TensorBoard",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            8888,
+            "TCP",
+            "Jupyter",
+            "Jupyter Notebook",
+            ServiceCategory::Dev,
+        );
 
         // ── Security ───────────────────────────────────────────────────────
-        self.register(636, "TCP", "LDAPS", "LDAP over SSL", ServiceCategory::Security);
-        self.register(389, "TCP", "LDAP", "LDAP Directory", ServiceCategory::Security);
-        self.register(88, "TCP", "Kerberos", "Kerberos Auth", ServiceCategory::Security);
-        self.register(464, "TCP", "Kerberos-Change", "Kerberos Password", ServiceCategory::Security);
+        self.register(
+            636,
+            "TCP",
+            "LDAPS",
+            "LDAP over SSL",
+            ServiceCategory::Security,
+        );
+        self.register(
+            389,
+            "TCP",
+            "LDAP",
+            "LDAP Directory",
+            ServiceCategory::Security,
+        );
+        self.register(
+            88,
+            "TCP",
+            "Kerberos",
+            "Kerberos Auth",
+            ServiceCategory::Security,
+        );
+        self.register(
+            464,
+            "TCP",
+            "Kerberos-Change",
+            "Kerberos Password",
+            ServiceCategory::Security,
+        );
 
         // ── Other common services ──────────────────────────────────────────
-        self.register(1099, "TCP", "RMI", "Java RMI Registry", ServiceCategory::Dev);
-        self.register(8081, "TCP", "HTTP-Alt-3", "Alternative HTTP", ServiceCategory::Web);
-        self.register(8082, "TCP", "HTTP-Alt-4", "Alternative HTTP", ServiceCategory::Web);
-        self.register(9000, "TCP", "SonarQube", "SonarQube Server", ServiceCategory::Dev);
-        self.register(8761, "TCP", "Eureka", "Netflix Eureka", ServiceCategory::Infra);
+        self.register(
+            1099,
+            "TCP",
+            "RMI",
+            "Java RMI Registry",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            8081,
+            "TCP",
+            "HTTP-Alt-3",
+            "Alternative HTTP",
+            ServiceCategory::Web,
+        );
+        self.register(
+            8082,
+            "TCP",
+            "HTTP-Alt-4",
+            "Alternative HTTP",
+            ServiceCategory::Web,
+        );
+        self.register(
+            9000,
+            "TCP",
+            "SonarQube",
+            "SonarQube Server",
+            ServiceCategory::Dev,
+        );
+        self.register(
+            8761,
+            "TCP",
+            "Eureka",
+            "Netflix Eureka",
+            ServiceCategory::Infra,
+        );
         // Note: 8888 already registered as Jupyter above; Java code overwrites
         // with Config-Server. We replicate the overwrite here.
-        self.register(8888, "TCP", "Config-Server", "Spring Cloud Config", ServiceCategory::Infra);
-        self.register(5000, "TCP", "Docker-Registry", "Docker Registry", ServiceCategory::Infra);
-        self.register(5001, "TCP", "Registry-Alt", "Registry Alternative", ServiceCategory::Infra);
+        self.register(
+            8888,
+            "TCP",
+            "Config-Server",
+            "Spring Cloud Config",
+            ServiceCategory::Infra,
+        );
+        self.register(
+            5000,
+            "TCP",
+            "Docker-Registry",
+            "Docker Registry",
+            ServiceCategory::Infra,
+        );
+        self.register(
+            5001,
+            "TCP",
+            "Registry-Alt",
+            "Registry Alternative",
+            ServiceCategory::Infra,
+        );
     }
 }
 
@@ -288,7 +709,11 @@ mod tests {
     fn test_all_tcp_ports_not_empty() {
         let registry = ServiceRegistry::new();
         let ports = registry.all_tcp_ports();
-        assert!(ports.len() > 50, "Expected 50+ TCP ports, got {}", ports.len());
+        assert!(
+            ports.len() > 50,
+            "Expected 50+ TCP ports, got {}",
+            ports.len()
+        );
     }
 
     #[test]

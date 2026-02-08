@@ -254,7 +254,8 @@ impl OutputFormatter for TableFormatter {
                     }
                     let first = ports[0];
 
-                    let mut header_line = format!("  {} (pid {})", first.process_name(), first.pid());
+                    let mut header_line =
+                        format!("  {} (pid {})", first.process_name(), first.pid());
                     if !first.user().is_empty() {
                         header_line.push_str(&format!(" - {}", first.user()));
                     }
@@ -379,11 +380,7 @@ impl OutputFormatter for TableFormatter {
                 Color::Yellow
             };
 
-            let http_text = format!(
-                "{} ({}ms)",
-                http.status_formatted(),
-                http.response_time_ms
-            );
+            let http_text = format!("{} ({}ms)", http.status_formatted(), http.response_time_ms);
             sb.push_str("HTTP:    ");
             sb.push_str(&self.colorize(&http_text, http_color));
             sb.push('\n');
@@ -400,14 +397,8 @@ impl OutputFormatter for TableFormatter {
         // SSL info if available
         if let Some(ref ssl) = result.ssl_info {
             sb.push_str("\nSSL CERTIFICATE\n");
-            sb.push_str(&format!(
-                "  Subject:  {}\n",
-                Self::extract_cn(&ssl.subject)
-            ));
-            sb.push_str(&format!(
-                "  Issuer:   {}\n",
-                Self::extract_cn(&ssl.issuer)
-            ));
+            sb.push_str(&format!("  Subject:  {}\n", Self::extract_cn(&ssl.subject)));
+            sb.push_str(&format!("  Issuer:   {}\n", Self::extract_cn(&ssl.issuer)));
             sb.push_str(&format!("  Protocol: {}\n", ssl.protocol));
 
             let days_left = ssl.days_until_expiry();
@@ -470,7 +461,10 @@ mod tests {
 
     #[test]
     fn test_extract_cn() {
-        assert_eq!(TableFormatter::extract_cn("CN=example.com,O=Org"), "example.com");
+        assert_eq!(
+            TableFormatter::extract_cn("CN=example.com,O=Org"),
+            "example.com"
+        );
         assert_eq!(TableFormatter::extract_cn(""), "");
     }
 

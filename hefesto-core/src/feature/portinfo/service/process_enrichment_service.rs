@@ -210,7 +210,11 @@ impl ProcessEnrichmentService {
                 .ok()
                 .and_then(|o| {
                     let s = String::from_utf8_lossy(&o.stdout).trim().to_string();
-                    if s.is_empty() { None } else { Some(s) }
+                    if s.is_empty() {
+                        None
+                    } else {
+                        Some(s)
+                    }
                 })
                 .unwrap_or_default()
         }
@@ -335,7 +339,7 @@ mod tests {
 
     #[test]
     fn test_parse_cpu_time_hhmmss() {
-        assert_eq!(parse_cpu_time("01:30:45"), (1 * 3600 + 30 * 60 + 45) * 1000);
+        assert_eq!(parse_cpu_time("01:30:45"), (3600 + 30 * 60 + 45) * 1000);
     }
 
     #[test]
@@ -345,7 +349,7 @@ mod tests {
 
     #[test]
     fn test_parse_cpu_time_with_fractional() {
-        assert_eq!(parse_cpu_time("01:30:45.123"), (1 * 3600 + 30 * 60 + 45) * 1000);
+        assert_eq!(parse_cpu_time("01:30:45.123"), (3600 + 30 * 60 + 45) * 1000);
     }
 
     #[test]

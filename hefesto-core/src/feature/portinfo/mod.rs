@@ -1,3 +1,3 @@
 pub mod command;
-pub mod service;
 pub mod output;
+pub mod service;

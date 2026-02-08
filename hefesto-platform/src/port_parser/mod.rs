@@ -1,10 +1,10 @@
 use anyhow::Result;
 use hefesto_domain::portinfo::port_binding::PortBinding;
 
-#[cfg(target_os = "macos")]
-mod macos;
 #[cfg(target_os = "linux")]
 mod linux;
+#[cfg(target_os = "macos")]
+mod macos;
 #[cfg(target_os = "windows")]
 mod windows;
 
@@ -45,14 +45,22 @@ pub trait PortParser: Send + Sync {
 /// Creates the platform-specific port parser.
 pub fn create_parser() -> Box<dyn PortParser> {
     #[cfg(target_os = "macos")]
-    { Box::new(macos::MacOsPortParser::new()) }
+    {
+        Box::new(macos::MacOsPortParser::new())
+    }
 
     #[cfg(target_os = "linux")]
-    { Box::new(linux::LinuxPortParser::new()) }
+    {
+        Box::new(linux::LinuxPortParser::new())
+    }
 
     #[cfg(target_os = "windows")]
-    { Box::new(windows::WindowsPortParser::new()) }
+    {
+        Box::new(windows::WindowsPortParser::new())
+    }
 
     #[cfg(not(any(target_os = "macos", target_os = "linux", target_os = "windows")))]
-    { compile_error!("Unsupported operating system") }
+    {
+        compile_error!("Unsupported operating system")
+    }
 }

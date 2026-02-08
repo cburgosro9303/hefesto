@@ -11,10 +11,7 @@ use crate::i18n::{I18nService, Language};
 use crate::{AppWindow, Theme};
 
 /// Wires preferences callbacks and sets initial state.
-pub fn setup_preferences(
-    window: &AppWindow,
-    i18n: Arc<std::sync::Mutex<I18nService>>,
-) {
+pub fn setup_preferences(window: &AppWindow, i18n: Arc<std::sync::Mutex<I18nService>>) {
     // Dark mode toggle
     {
         let weak = window.as_weak();
